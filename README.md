@@ -24,3 +24,18 @@ Uso:
 
 O pasale un video a Claude y decile "hacé lo mismo que el anterior".
 El resultado queda en `~/Downloads/<nombre>-final.mp4`.
+
+## Proyecto Remotion `mi-video/`
+
+Proyecto [Remotion](https://www.remotion.dev) (plantilla Blank + TailwindCSS) para crear
+videos con código pidiéndoselos a Claude. Las Skills oficiales de Remotion están en
+`.claude/skills/remotion-*`.
+
+```bash
+cd mi-video
+npm install
+npm run dev            # abre Remotion Studio en el navegador
+npx remotion render    # exporta el MP4 a out/
+```
+
+Para usar tus propios videos o imágenes, ponelos en `mi-video/public/` y decile a Claude la ruta.

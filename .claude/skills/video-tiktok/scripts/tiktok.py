@@ -349,6 +349,31 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     Path(path).write_text(header + "\n".join(lines) + "\n", encoding="utf-8")
 
 
+# ---------------------------------------------------------------- zoom
+
+def find_phrase(words, phrase, used):
+    """Índices (i, j) de la primera aparición de `phrase` que no se haya usado."""
+    target = [normalize(x) for x in phrase.split() if normalize(x)]
+    norm = [normalize(w["word"]) for w in words]
+    for i in range(len(norm) - len(target) + 1):
+        if norm[i:i + len(target)] == target and (i, phrase) not in used:
+            used.add((i, phrase))
+            return i, i + len(target) - 1
+    return None
+
+
+def zoom_ranges(words, segs, phrases, hold):
+    """Rangos (en tiempo del video cortado) con primer plano, uno por frase importante."""
+    ranges, used = [], set()
+    for phrase in phrases:
+        hit = find_phrase(words, phrase, used)
+        if not hit:
+            die(f"no encontré la frase para el zoom: {phrase!r}")
+        i, j = hit
+        ranges.append((remap(words[i]["start"], segs), remap(words[j]["end"], segs) + hold))
+    return ranges
+
+
 # ---------------------------------------------------------------- render
 
 def audio_chain(mutes):
@@ -359,16 +384,17 @@ def audio_chain(mutes):
     return ",".join(chain)
 
 
-def build_filter(info, segs, flip, mutes, ass_name, loudnorm):
+def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), zoom=1.3, zoom_y=0.42):
     fps = info["fps"]
     vpre = [f"fps={fps}"]
     if flip:
         vpre.append("hflip")
-    vpost = [
+    vframe = [
         f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase",
         f"crop={WIDTH}:{HEIGHT}",
         "setsar=1",
     ]
+    vpost = []
     if ass_name:
         vpost.append(f"ass={ass_name}")
     vpost.append("format=yuv420p")
@@ -383,7 +409,16 @@ def build_filter(info, segs, flip, mutes, ass_name, loudnorm):
         parts.append(f"[a{i}]atrim=start={s:.3f}:end={e:.3f},asetpts=PTS-STARTPTS,"
                      f"afade=t=in:d=0.01,afade=t=out:st={max(0, e - s - 0.01):.3f}:d=0.01[at{i}]")
     parts.append("".join(f"[vt{i}][at{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vc][ac]")
-    parts.append(f"[vc]{','.join(vpost)}[vout]")
+    if zooms:
+        # Primer plano: corte duro a una versión ampliada, anclada en la cara (zoom_y).
+        zw, zh = round(WIDTH * zoom / 2) * 2, round(HEIGHT * zoom / 2) * 2
+        enable = "+".join(f"between(t,{s:.3f},{e:.3f})" for s, e in zooms)
+        parts.append(f"[vc]{','.join(vframe)},split=2[vn][vz]")
+        parts.append(f"[vz]scale={zw}:{zh},crop={WIDTH}:{HEIGHT}:{(zw - WIDTH) // 2}:"
+                     f"{round((zh - HEIGHT) * zoom_y)}[vzz]")
+        parts.append(f"[vn][vzz]overlay=0:0:enable='{enable}',{','.join(vpost)}[vout]")
+    else:
+        parts.append(f"[vc]{','.join(vframe + vpost)}[vout]")
     parts.append(f"[ac]{apost}[aout]")
     return ";".join(parts)
 
@@ -430,7 +465,8 @@ def cmd_render(args):
         build_ass(words, segs, wd / ass_name, args.font, args.font_size, args.margin_v, args.upper)
 
     loud = measure_loudness(video, segs, mutes, wd)
-    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud)
+    zooms = zoom_ranges(words, segs, args.zoom, args.zoom_hold) if args.zoom else []
+    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, args.zoom_level, args.zoom_y)
     out = Path(args.out).expanduser().resolve() if args.out else default_output(video)
     out.parent.mkdir(parents=True, exist_ok=True)
     run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video,
@@ -479,6 +515,12 @@ def main():
     r.add_argument("--font-size", type=int, default=86)
     r.add_argument("--margin-v", type=int, default=520, help="distancia de los subtítulos al borde inferior")
     r.add_argument("--upper", action="store_true", help="subtítulos en MAYÚSCULAS")
+    r.add_argument("--zoom", action="append", default=[], metavar="FRASE",
+                   help="primer plano mientras se dice esta frase (repetible)")
+    r.add_argument("--zoom-level", type=float, default=1.3, help="cuánto acerca el primer plano")
+    r.add_argument("--zoom-y", type=float, default=0.42,
+                   help="altura de la cara (0 = arriba, 1 = abajo) para anclar el zoom")
+    r.add_argument("--zoom-hold", type=float, default=0.3, help="segundos extra de zoom tras la frase")
     r.set_defaults(func=cmd_render)
 
     args = p.parse_args()

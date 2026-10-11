@@ -54,3 +54,9 @@ Repetir los pasos con los mismos flags que se usaron en el video anterior de la 
 | `--margin-v` | 520 | altura de los subtítulos desde abajo |
 | `--out` | `~/Downloads/<nombre>-final.mp4` | otra ruta de salida |
 | `--no-subs` | — | sin subtítulos |
+| `--zoom "frase"` | — | primer plano (corte a zoom) mientras se dice esa frase; repetible |
+| `--zoom-level` / `--zoom-y` | 1.3 / 0.42 | cuánto acerca y a qué altura está la cara (0 arriba, 1 abajo) |
+| `--zoom-hold` | 0.3 | segundos extra de zoom después de la frase |
+
+Si el usuario pide "primer plano" o "zoom cuando dice algo importante", elegir 3–5 frases clave
+(el gancho, la idea central, el llamado a la acción), pasarlas con `--zoom` y decirle cuáles fueron.

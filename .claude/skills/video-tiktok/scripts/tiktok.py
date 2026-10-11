@@ -376,6 +376,20 @@ def zoom_ranges(words, segs, phrases, hold):
 
 # ---------------------------------------------------------------- render
 
+def music_mix(voice, duration, music_lufs, out):
+    """Música de fondo (input 1, en loop) nivelada, con fade y que baja cuando hay voz."""
+    fade_out = max(0.0, duration - 2.0)
+    return [
+        f"{voice}asplit=2[vm][vs]",
+        f"[1:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{duration:.3f},asetpts=PTS-STARTPTS,"
+        f"loudnorm=I={music_lufs}:TP=-6:LRA=11,"
+        f"afade=t=in:d=1,afade=t=out:st={fade_out:.3f}:d=2[mus]",
+        "[vs]aformat=channel_layouts=stereo[vsc]",
+        "[mus][vsc]sidechaincompress=threshold=0.02:ratio=4:attack=30:release=500[duck]",
+        f"[vm]aformat=channel_layouts=stereo[vst];[vst][duck]amix=inputs=2:normalize=0:duration=first{out}",
+    ]
+
+
 def audio_chain(mutes):
     chain = ["highpass=f=80", "lowpass=f=12000", "afftdn=nr=12:nf=-30:tn=1"]
     if mutes:
@@ -384,7 +398,8 @@ def audio_chain(mutes):
     return ",".join(chain)
 
 
-def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), zoom=1.3, zoom_y=0.42):
+def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), zoom=1.3, zoom_y=0.42,
+                 music_lufs=None):
     fps = info["fps"]
     vpre = [f"fps={fps}"]
     if flip:
@@ -419,19 +434,31 @@ def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), zoom=1.3
         parts.append(f"[vn][vzz]overlay=0:0:enable='{enable}',{','.join(vpost)}[vout]")
     else:
         parts.append(f"[vc]{','.join(vframe + vpost)}[vout]")
-    parts.append(f"[ac]{apost}[aout]")
+    if music_lufs is not None:
+        parts += music_mix("[ac]", sum(e - s for s, e in segs), music_lufs, "[amx]")
+        parts.append(f"[amx]{apost}[aout]")
+    else:
+        parts.append(f"[ac]{apost}[aout]")
     return ";".join(parts)
 
 
-def measure_loudness(video, segs, mutes, cwd):
+def measure_loudness(video, segs, mutes, cwd, music=None, music_lufs=None):
     """Primera pasada de loudnorm sobre el audio ya limpio y cortado."""
     n = len(segs)
     parts = [f"[0:a]{audio_chain(mutes)},asplit={n}" + "".join(f"[a{i}]" for i in range(n))]
     for i, (s, e) in enumerate(segs):
         parts.append(f"[a{i}]atrim=start={s:.3f}:end={e:.3f},asetpts=PTS-STARTPTS[at{i}]")
-    parts.append("".join(f"[at{i}]" for i in range(n)) +
-                 f"concat=n={n}:v=0:a=1,loudnorm=I={TARGET_LUFS}:TP={TRUE_PEAK}:LRA=11:print_format=json[out]")
-    res = run(["ffmpeg", "-hide_banner", "-nostats", "-i", video, "-filter_complex", ";".join(parts),
+    measure = f"loudnorm=I={TARGET_LUFS}:TP={TRUE_PEAK}:LRA=11:print_format=json[out]"
+    concat = "".join(f"[at{i}]" for i in range(n)) + f"concat=n={n}:v=0:a=1"
+    inputs = ["-i", video]
+    if music:
+        parts.append(concat + "[ac]")
+        parts += music_mix("[ac]", sum(e - s for s, e in segs), music_lufs, "[amx]")
+        parts.append(f"[amx]{measure}")
+        inputs += ["-stream_loop", "-1", "-i", music]
+    else:
+        parts.append(f"{concat},{measure}")
+    res = run(["ffmpeg", "-hide_banner", "-nostats", *inputs, "-filter_complex", ";".join(parts),
                "-map", "[out]", "-f", "null", "-"], cwd=cwd, capture=True)
     m = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", res.stderr, re.S)
     if not m:
@@ -464,12 +491,18 @@ def cmd_render(args):
         ass_name = "subs.ass"
         build_ass(words, segs, wd / ass_name, args.font, args.font_size, args.margin_v, args.upper)
 
-    loud = measure_loudness(video, segs, mutes, wd)
+    music = str(Path(args.music).expanduser().resolve()) if args.music else None
+    if music and not Path(music).exists():
+        die(f"no existe la música {music}")
+    music_lufs = args.music_lufs if music else None
+    loud = measure_loudness(video, segs, mutes, wd, music, music_lufs)
     zooms = zoom_ranges(words, segs, args.zoom, args.zoom_hold) if args.zoom else []
-    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, args.zoom_level, args.zoom_y)
+    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, args.zoom_level, args.zoom_y,
+                         music_lufs)
     out = Path(args.out).expanduser().resolve() if args.out else default_output(video)
     out.parent.mkdir(parents=True, exist_ok=True)
-    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video,
+    music_in = ["-stream_loop", "-1", "-i", music] if music else []
+    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video, *music_in,
          "-filter_complex", graph, "-map", "[vout]", "-map", "[aout]",
          "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(info["fps"]),
          "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out], cwd=wd)
@@ -521,6 +554,9 @@ def main():
     r.add_argument("--zoom-y", type=float, default=0.42,
                    help="altura de la cara (0 = arriba, 1 = abajo) para anclar el zoom")
     r.add_argument("--zoom-hold", type=float, default=0.3, help="segundos extra de zoom tras la frase")
+    r.add_argument("--music", help="archivo de música de fondo (se repite si es más corto)")
+    r.add_argument("--music-lufs", type=float, default=-30,
+                   help="volumen de la música antes de mezclar (más negativo = más baja)")
     r.set_defaults(func=cmd_render)
 
     args = p.parse_args()

@@ -57,6 +57,12 @@ Repetir los pasos con los mismos flags que se usaron en el video anterior de la 
 | `--zoom "frase"` | — | primer plano (corte a zoom) mientras se dice esa frase; repetible |
 | `--zoom-level` / `--zoom-y` | 1.3 / 0.42 | cuánto acerca y a qué altura está la cara (0 arriba, 1 abajo) |
 | `--zoom-hold` | 0.3 | segundos extra de zoom después de la frase |
+| `--music archivo` | — | música de fondo: se repite si es corta, fade in/out, baja sola cuando hay voz |
+| `--music-lufs` | -30 | volumen de la música antes de mezclar (-34 más baja, -26 más alta) |
 
 Si el usuario pide "primer plano" o "zoom cuando dice algo importante", elegir 3–5 frases clave
 (el gancho, la idea central, el llamado a la acción), pasarlas con `--zoom` y decirle cuáles fueron.
+
+Si pide música de fondo, la canción la tiene que pasar el usuario (mp3/wav/m4a); no inventarla.
+Recordarle que la música con derechos puede hacer que TikTok/Instagram silencien el video, y que
+los sonidos de la biblioteca de la app son la opción segura.

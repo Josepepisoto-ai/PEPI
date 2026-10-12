@@ -57,6 +57,14 @@ y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ign
   lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
 - Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
 
+## Música de fondo (opcional)
+
+`render ... --music auto` genera una base instrumental simple (Am-F-C-G, ~100 BPM);
+`--music <archivo.mp3>` usa un tema del usuario (se repite si es corto). La música se normaliza a
+`--music-volume` LUFS (default -27; la voz va a -14), entra y sale con fade y baja sola cuando hay
+voz (sidechain). Si suena fuerte o floja, mover `--music-volume` de a 3. Recordar al usuario que
+para temas con derechos conviene agregar el audio desde la app de TikTok.
+
 ## "Lo mismo que el anterior"
 
 Repetir los pasos con los mismos flags que se usaron en el video anterior de la conversación

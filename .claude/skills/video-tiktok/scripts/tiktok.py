@@ -439,6 +439,66 @@ def zoom_filter(zooms, fps, ramp_in=0.12, ramp_out=0.2):
             f":y='clip(({fye})*ih-ih/zoom/2,0,ih-ih/zoom)':d=1:s={WIDTH}x{HEIGHT}:fps={fps}")
 
 
+def synth_music(path, duration, bpm=100):
+    """Base instrumental simple (Am-F-C-G, bombo, palmas, hi-hat, bajo y arpegio) en WAV estéreo."""
+    import wave
+    import numpy as np
+
+    rng = np.random.default_rng(3)
+    n = int(SR * duration)
+    beat = 60 / bpm
+    bar = 4 * beat
+    t = np.arange(n) / SR
+    left, right = np.zeros(n), np.zeros(n)
+
+    def hz(m):
+        return 440 * 2 ** ((m - 69) / 12)
+
+    def add(sig, at, pan=0.0):
+        i = int(at * SR)
+        if i >= n:
+            return
+        sig = sig[: n - i]
+        left[i:i + len(sig)] += sig * (1 - pan)
+        right[i:i + len(sig)] += sig * (1 + pan)
+
+    chords = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]]   # Am F C G
+    for b in range(int(duration / bar) + 1):
+        start, ch = b * bar, chords[b % 4]
+        tt = np.arange(int(bar * SR)) / SR
+        env = np.minimum(1, tt / 0.4) * np.minimum(1, (bar - tt) / 0.3)
+        pad = sum(np.sin(2 * np.pi * hz(m) * tt) + 0.3 * np.sin(4 * np.pi * hz(m) * tt) for m in ch)
+        add(0.05 * env * pad, start)
+        for k in range(8):                                   # bajo en corcheas
+            d = np.arange(int(beat / 2 * SR)) / SR
+            add(0.18 * np.sin(2 * np.pi * hz(ch[0] - 12) * d) * np.exp(-d * 6), start + k * beat / 2)
+        arp = [ch[0] + 12, ch[1] + 12, ch[2] + 12, ch[1] + 12]
+        for k in range(8):                                   # arpegio
+            d = np.arange(int(0.4 * SR)) / SR
+            note = np.sin(2 * np.pi * hz(arp[k % 4]) * d) * np.exp(-d * 9)
+            add(0.07 * note, start + k * beat / 2, pan=0.4 if k % 2 else -0.4)
+        for k in range(4):
+            d = np.arange(int(0.25 * SR)) / SR
+            kick = np.sin(2 * np.pi * (45 + 90 * np.exp(-d * 30)) * d) * np.exp(-d * 14)
+            add(0.45 * kick, start + k * beat)
+            if k % 2:
+                d = np.arange(int(0.15 * SR)) / SR
+                add(0.12 * rng.uniform(-1, 1, len(d)) * np.exp(-d * 30), start + k * beat)
+        for k in range(8):                                   # hi-hat
+            d = np.arange(int(0.05 * SR)) / SR
+            hat = np.diff(rng.uniform(-1, 1, len(d) + 1)) * np.exp(-d * 80)
+            add(0.04 * hat, start + k * beat / 2, pan=0.2)
+
+    fade = np.minimum(1, np.minimum(t / 1.0, (duration - t) / 1.5))
+    st = np.stack([left, right], 1) * fade[:, None]
+    st /= max(1e-9, np.abs(st).max()) / 0.8
+    with wave.open(str(path), "wb") as f:
+        f.setnchannels(2)
+        f.setsampwidth(2)
+        f.setframerate(SR)
+        f.writeframes((st * 32000).astype("<i2").tobytes())
+
+
 # ---------------------------------------------------------------- render
 
 def audio_chain(mutes):
@@ -449,7 +509,8 @@ def audio_chain(mutes):
     return ",".join(chain)
 
 
-def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), sfx_inputs=None):
+def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), sfx_inputs=None,
+                 music_input=None, music_lufs=-27.0):
     fps = info["fps"]
     vpre = [f"fps={fps}"]
     if flip:
@@ -476,11 +537,19 @@ def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), 
                      f"afade=t=in:d=0.01,afade=t=out:st={max(0, e - s - 0.01):.3f}:d=0.01[at{i}]")
     parts.append("".join(f"[vt{i}][at{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vc][ac]")
     parts.append(f"[vc]{','.join(vpost)}[vout]")
-    if not sfx:
+    if not sfx and music_input is None:
         parts.append(f"[ac]{apost}[aout]")
         return ";".join(parts)
     parts.append(f"[ac]{apost}[voice]")
     labels = []
+    if music_input is not None:
+        # La música baja sola cuando hay voz (ducking con sidechain).
+        parts.append("[voice]asplit[voice][vsc]")
+        parts.append(f"[{music_input}:a]aformat=sample_rates=48000:channel_layouts=mono,"
+                     f"loudnorm=I={music_lufs:.1f}:TP=-3:LRA=11,aresample=48000,afade=t=in:d=1,"
+                     f"afade=t=out:st={max(0, sum(e - s for s, e in segs) - 1.5):.2f}:d=1.5[mus]")
+        parts.append("[mus][vsc]sidechaincompress=threshold=0.03:ratio=6:attack=30:release=500[duck]")
+        labels.append("[duck]")
     for i, x in enumerate(sfx):
         ms = int(x["t"] * 1000)
         parts.append(f"[{sfx_inputs[x['sound']]}:a]volume={x['gain']:.2f},adelay={ms}:all=1,"
@@ -540,12 +609,28 @@ def cmd_render(args):
         for kind in sorted({x["sound"] for x in sfx}):
             wav = wd / f"sfx_{kind}.wav"
             synth_sfx(kind, wav)
-            sfx_inputs[kind] = len(extra) // 2 + 1
+            sfx_inputs[kind] = len([x for x in extra if x == "-i"]) + 1
             extra += ["-i", str(wav)]
         print(f"Efectos: {len(zooms)} zooms, {len(sfx)} sonidos ({fx_path})", file=sys.stderr)
 
+    music_input = None
+    if args.music:
+        kept = sum(e - s for s, e in segs)
+        if args.music == "auto":
+            music = wd / "music.wav"
+            synth_music(music, kept + 0.5)
+            extra += ["-i", str(music)]
+        else:
+            music = Path(args.music).expanduser().resolve()
+            if not music.exists():
+                die(f"no existe {music}")
+            extra += ["-stream_loop", "-1", "-i", str(music)]   # se repite si es más corta
+        music_input = len([x for x in extra if x == "-i"])
+        print(f"Música: {music.name} a {args.music_volume} LUFS", file=sys.stderr)
+
     loud = measure_loudness(video, segs, mutes, wd)
-    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, sfx, sfx_inputs)
+    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, sfx, sfx_inputs,
+                         music_input, args.music_volume)
     out = Path(args.out).expanduser().resolve() if args.out else default_output(video)
     out.parent.mkdir(parents=True, exist_ok=True)
     run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video, *extra,
@@ -595,6 +680,9 @@ def main():
     r.add_argument("--margin-v", type=int, default=520, help="distancia de los subtítulos al borde inferior")
     r.add_argument("--fx", help="archivo de efectos (default: fx.json en la carpeta de trabajo)")
     r.add_argument("--no-fx", action="store_true", help="ignorar fx.json (sin zooms ni sonidos)")
+    r.add_argument("--music", help="música de fondo: ruta a un .mp3/.wav, o `auto` para una base generada")
+    r.add_argument("--music-volume", type=float, default=-27.0,
+                   help="volumen de la música en LUFS (la voz va a -14; antes de bajar con la voz)")
     r.add_argument("--upper", action="store_true", help="subtítulos en MAYÚSCULAS")
     r.set_defaults(func=cmd_render)
 

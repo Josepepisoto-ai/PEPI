@@ -39,6 +39,24 @@ Si pidió mayúsculas, `--upper`.
    `transcript.json` (no tocar `start`/`end`; para borrar una palabra, quitar su objeto) y volver a
    correr solo el paso 3 con los mismos flags. No re-transcribir.
 
+## Zooms y efectos de sonido (opcional)
+
+Si el usuario pide zoom en momentos importantes o sonidos en palabras clave, escribir
+`~/.cache/video-tiktok/<nombre>/fx.json` (índices = posición de la palabra en `transcript.json`)
+y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ignora):
+
+```json
+{"zooms": [{"from": 12, "to": 14, "scale": 1.2, "focus": [0.5, 0.3]}],
+ "sfx":   [{"word": 12, "sound": "whoosh"}, {"word": 16, "sound": "pop"}, {"word": 43, "sound": "ding"}]}
+```
+
+- Zoom: entra suave sobre la frase y vuelve al terminar; `focus` (x, y en 0..1) es hacia dónde
+  apunta (cara, pizarrón…). Después del render, sacar un fotograma a mitad de cada zoom y revisar
+  que el encuadre no corte la cara; si la corta, ajustar `focus`.
+- Sonidos (sintetizados, sin archivos): `whoosh` al empezar un zoom, `pop` para ítems de una
+  lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
+- Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
+
 ## "Lo mismo que el anterior"
 
 Repetir los pasos con los mismos flags que se usaron en el video anterior de la conversación

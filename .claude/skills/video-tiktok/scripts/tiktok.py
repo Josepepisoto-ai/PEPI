@@ -349,6 +349,96 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     Path(path).write_text(header + "\n".join(lines) + "\n", encoding="utf-8")
 
 
+# ---------------------------------------------------------------- efectos (fx.json)
+
+SFX_KINDS = ("pop", "whoosh", "ding")
+SR = 48000
+
+
+def synth_sfx(kind, path):
+    """Genera un efecto de sonido simple en WAV mono 48 kHz (sin archivos externos)."""
+    import math
+    import random
+    import struct
+    import wave
+
+    random.seed(7)
+    if kind == "pop":
+        n = int(SR * 0.09)
+        out, phase = [], 0.0
+        for i in range(n):
+            t = i / SR
+            phase += 2 * math.pi * (1100 * math.exp(-t * 40) + 250) / SR
+            out.append(0.8 * math.sin(phase) * math.exp(-t * 45))
+    elif kind == "ding":
+        n = int(SR * 0.7)
+        out = [0.5 * math.exp(-i / SR * 6) * (math.sin(2 * math.pi * 1568 * i / SR)
+                                               + 0.4 * math.sin(2 * math.pi * 3136 * i / SR))
+               for i in range(n)]
+    elif kind == "whoosh":
+        n = int(SR * 0.4)
+        out, y = [], 0.0
+        for i in range(n):
+            x = i / n
+            env = math.sin(math.pi * x) ** 2
+            a = 0.02 + 0.25 * env          # filtro pasabajos que se abre y se cierra
+            y += a * (random.uniform(-1, 1) - y)
+            out.append(2.2 * env * y)
+    else:
+        die(f"efecto desconocido: {kind} (usar {', '.join(SFX_KINDS)})")
+    with wave.open(str(path), "wb") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(SR)
+        f.writeframes(b"".join(struct.pack("<h", int(max(-1, min(1, v)) * 32000)) for v in out))
+
+
+def load_fx(path, words, segs):
+    """Lee fx.json y convierte índices de palabras a tiempos del video cortado.
+
+    Formato:
+      {"zooms": [{"from": 12, "to": 14, "scale": 1.2, "focus": [0.5, 0.45]}],
+       "sfx":   [{"word": 12, "sound": "pop"}]}
+    `from`/`to`/`word` son índices de palabras de transcript.json; `focus` es el punto
+    (x, y en 0..1) hacia el que se hace el zoom.
+    """
+    fx = json.loads(Path(path).read_text(encoding="utf-8"))
+    zooms = []
+    for z in fx.get("zooms", []):
+        s = remap(words[z["from"]]["start"], segs) - 0.05
+        e = remap(words[z["to"]]["end"], segs) + 0.25
+        zooms.append({"s": max(0.0, s), "e": e, "scale": z.get("scale", 1.2),
+                      "focus": z.get("focus", [0.5, 0.45])})
+    zooms.sort(key=lambda z: z["s"])
+    for a, b in zip(zooms, zooms[1:]):   # sin superposición
+        a["e"] = min(a["e"], b["s"])
+    sfx = []
+    for x in fx.get("sfx", []):
+        t = remap(words[x["word"]]["start"], segs)
+        if x["sound"] == "whoosh":
+            t -= 0.2                          # el pico del whoosh cae sobre la palabra
+        sfx.append({"t": max(0.0, t), "sound": x["sound"], "gain": x.get("gain", 1.0)})
+    return zooms, sfx
+
+
+def zoom_filter(zooms, fps, ramp_in=0.12, ramp_out=0.2):
+    def ease(x):
+        c = f"clip({x},0,1)"
+        return f"({c}*{c}*(3-2*{c}))"
+    z_terms, fx_terms, fy_terms = [], [], []
+    for z in zooms:
+        s, e = z["s"], z["e"]
+        env = f"{ease(f'(it-{s:.3f})/{ramp_in}')}*{ease(f'({e:.3f}-it)/{ramp_out}')}"
+        z_terms.append(f"{z['scale'] - 1:.3f}*{env}")
+        on = f"between(it,{s:.3f},{e:.3f})"
+        fx_terms.append(f"{z['focus'][0] - 0.5:.3f}*{on}")
+        fy_terms.append(f"{z['focus'][1] - 0.5:.3f}*{on}")
+    zexpr = "1+" + "+".join(z_terms)
+    fxe, fye = "0.5+" + "+".join(fx_terms), "0.5+" + "+".join(fy_terms)
+    return (f"zoompan=z='{zexpr}':x='clip(({fxe})*iw-iw/zoom/2,0,iw-iw/zoom)'"
+            f":y='clip(({fye})*ih-ih/zoom/2,0,ih-ih/zoom)':d=1:s={WIDTH}x{HEIGHT}:fps={fps}")
+
+
 # ---------------------------------------------------------------- render
 
 def audio_chain(mutes):
@@ -359,7 +449,7 @@ def audio_chain(mutes):
     return ",".join(chain)
 
 
-def build_filter(info, segs, flip, mutes, ass_name, loudnorm):
+def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), sfx_inputs=None):
     fps = info["fps"]
     vpre = [f"fps={fps}"]
     if flip:
@@ -369,6 +459,8 @@ def build_filter(info, segs, flip, mutes, ass_name, loudnorm):
         f"crop={WIDTH}:{HEIGHT}",
         "setsar=1",
     ]
+    if zooms:
+        vpost.append(zoom_filter(zooms, fps))
     if ass_name:
         vpost.append(f"ass={ass_name}")
     vpost.append("format=yuv420p")
@@ -384,7 +476,19 @@ def build_filter(info, segs, flip, mutes, ass_name, loudnorm):
                      f"afade=t=in:d=0.01,afade=t=out:st={max(0, e - s - 0.01):.3f}:d=0.01[at{i}]")
     parts.append("".join(f"[vt{i}][at{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vc][ac]")
     parts.append(f"[vc]{','.join(vpost)}[vout]")
-    parts.append(f"[ac]{apost}[aout]")
+    if not sfx:
+        parts.append(f"[ac]{apost}[aout]")
+        return ";".join(parts)
+    parts.append(f"[ac]{apost}[voice]")
+    labels = []
+    for i, x in enumerate(sfx):
+        ms = int(x["t"] * 1000)
+        parts.append(f"[{sfx_inputs[x['sound']]}:a]volume={x['gain']:.2f},adelay={ms}:all=1,"
+                     f"aformat=sample_rates=48000:channel_layouts=mono[s{i}]")
+        labels.append(f"[s{i}]")
+    parts.append("[voice]aformat=sample_rates=48000:channel_layouts=mono[vm]")
+    parts.append(f"[vm]{''.join(labels)}amix=inputs={len(labels) + 1}:normalize=0:duration=first,"
+                 "alimiter=limit=0.89:level=false[aout]")
     return ";".join(parts)
 
 
@@ -429,11 +533,22 @@ def cmd_render(args):
         ass_name = "subs.ass"
         build_ass(words, segs, wd / ass_name, args.font, args.font_size, args.margin_v, args.upper)
 
+    zooms, sfx, sfx_inputs, extra = [], [], {}, []
+    fx_path = Path(args.fx) if args.fx else wd / "fx.json"
+    if not args.no_fx and fx_path.exists():
+        zooms, sfx = load_fx(fx_path, words, segs)
+        for kind in sorted({x["sound"] for x in sfx}):
+            wav = wd / f"sfx_{kind}.wav"
+            synth_sfx(kind, wav)
+            sfx_inputs[kind] = len(extra) // 2 + 1
+            extra += ["-i", str(wav)]
+        print(f"Efectos: {len(zooms)} zooms, {len(sfx)} sonidos ({fx_path})", file=sys.stderr)
+
     loud = measure_loudness(video, segs, mutes, wd)
-    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud)
+    graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, sfx, sfx_inputs)
     out = Path(args.out).expanduser().resolve() if args.out else default_output(video)
     out.parent.mkdir(parents=True, exist_ok=True)
-    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video,
+    run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video, *extra,
          "-filter_complex", graph, "-map", "[vout]", "-map", "[aout]",
          "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(info["fps"]),
          "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out], cwd=wd)
@@ -478,6 +593,8 @@ def main():
     r.add_argument("--font", default="Montserrat ExtraBold")
     r.add_argument("--font-size", type=int, default=86)
     r.add_argument("--margin-v", type=int, default=520, help="distancia de los subtítulos al borde inferior")
+    r.add_argument("--fx", help="archivo de efectos (default: fx.json en la carpeta de trabajo)")
+    r.add_argument("--no-fx", action="store_true", help="ignorar fx.json (sin zooms ni sonidos)")
     r.add_argument("--upper", action="store_true", help="subtítulos en MAYÚSCULAS")
     r.set_defaults(func=cmd_render)
 

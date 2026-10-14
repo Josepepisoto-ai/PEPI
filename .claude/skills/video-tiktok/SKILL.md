@@ -57,6 +57,21 @@ y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ign
   lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
 - Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
 
+## Pausas más cortas (opcional)
+
+Whisper a veces estira palabras sobre los silencios, así que algunas pausas no se ven en la
+transcripción. Si el usuario pide pausas más cortas: `render ... --trim-silence --max-pause 0.3 --pad 0.12`
+(corta también los silencios que detecta en el audio, a -38 dB). Después volver a transcribir el
+resultado y comparar con la transcripción original para confirmar que no se comió finales de palabra;
+si pasa, subir `--pad`.
+
+## Cambiar el fondo (opcional)
+
+`python3 scripts/replace_bg.py <video> <salida.mp4>` reemplaza el fondo por azul oscuro con un leve
+degradé (segmentación de personas con `pip install "rembg[cpu]"`, ~0,3 s por cuadro). Correrlo en
+segundo plano sobre el video original y después hacer el `render` de la salida con
+`--transcript` y `--fx` de la carpeta del video original (mismos tiempos) y los mismos flags.
+
 ## HD (opcional)
 
 Si el usuario pide "HD" o mejor calidad, agregar `--enhance` al render: reduce el ruido de

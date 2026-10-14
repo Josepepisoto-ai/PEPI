@@ -253,6 +253,33 @@ def keep_segments(words, duration, cut, max_pause, pad):
     return segs
 
 
+def silence_ranges(video, min_dur, noise_db=-38):
+    """Silencios reales del audio (Whisper a veces estira palabras sobre las pausas)."""
+    res = run(["ffmpeg", "-hide_banner", "-nostats", "-i", video, "-vn", "-af",
+               f"highpass=f=80,afftdn=nr=12:nf=-30,silencedetect=noise={noise_db}dB:d={min_dur}",
+               "-f", "null", "-"], capture=True)
+    starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", res.stderr)]
+    ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", res.stderr)]
+    return list(zip(starts, ends))
+
+
+def subtract_silences(segs, silences, pad):
+    """Quita de cada tramo los silencios largos, dejando `pad` de aire a cada lado."""
+    out = []
+    for s, e in segs:
+        cur = s
+        for a, b in silences:
+            a, b = a + pad, b - pad
+            if b <= cur or a >= e or b - a <= 0:
+                continue
+            if a > cur:
+                out.append((cur, a))
+            cur = max(cur, b)
+        if e - cur > 0.05:
+            out.append((cur, e))
+    return out
+
+
 def mute_ranges(words, pad, min_gap=0.35):
     """Rangos (en tiempo original) entre frases donde se silencia el audio."""
     ranges = []
@@ -600,6 +627,8 @@ def cmd_render(args):
     words = load_words(transcript)
 
     segs = keep_segments(words, info["duration"], not args.no_cut, args.max_pause, args.pad)
+    if args.trim_silence and not args.no_cut:
+        segs = subtract_silences(segs, silence_ranges(video, args.max_pause), args.pad)
     mutes = mute_ranges(words, args.pad)
 
     ass_name = None
@@ -689,6 +718,8 @@ def main():
     r.add_argument("--music", help="música de fondo: ruta a un .mp3/.wav, o `auto` para una base generada")
     r.add_argument("--music-volume", type=float, default=-27.0,
                    help="volumen de la música en LUFS (la voz va a -14; antes de bajar con la voz)")
+    r.add_argument("--trim-silence", action="store_true",
+                   help="cortar también los silencios detectados en el audio (pausas más cortas)")
     r.add_argument("--enhance", action="store_true",
                    help="mejora para videos de baja resolución (WhatsApp): reduce ruido, enfoca y realza color")
     r.add_argument("--upper", action="store_true", help="subtítulos en MAYÚSCULAS")

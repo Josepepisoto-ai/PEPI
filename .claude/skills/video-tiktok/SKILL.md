@@ -57,6 +57,12 @@ y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ign
   lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
 - Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
 
+## HD (opcional)
+
+Si el usuario pide "HD" o mejor calidad, agregar `--enhance` al render: reduce el ruido de
+compresión de WhatsApp, escala con lanczos, enfoca y realza un poco el color, y codifica con
+`-preset slow -crf 17`. La salida ya es 1080x1920; esto mejora la nitidez, no inventa detalle.
+
 ## Música de fondo (opcional)
 
 `render ... --music auto` genera una base instrumental simple (Am-F-C-G, ~100 BPM);

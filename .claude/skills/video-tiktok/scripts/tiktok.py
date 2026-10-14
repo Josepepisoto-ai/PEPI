@@ -510,16 +510,21 @@ def audio_chain(mutes):
 
 
 def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), sfx_inputs=None,
-                 music_input=None, music_lufs=-27.0):
+                 music_input=None, music_lufs=-27.0, enhance=False):
     fps = info["fps"]
     vpre = [f"fps={fps}"]
     if flip:
         vpre.append("hflip")
-    vpost = [
-        f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase",
+    vpost = []
+    if enhance:
+        vpost.append("hqdn3d=1.5:1.5:6:6")              # quita el ruido de compresión de WhatsApp
+    vpost += [
+        f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase:flags=lanczos",
         f"crop={WIDTH}:{HEIGHT}",
         "setsar=1",
     ]
+    if enhance:
+        vpost += ["unsharp=5:5:0.7:5:5:0.0", "eq=contrast=1.04:saturation=1.08"]
     if zooms:
         vpost.append(zoom_filter(zooms, fps))
     if ass_name:
@@ -630,12 +635,13 @@ def cmd_render(args):
 
     loud = measure_loudness(video, segs, mutes, wd)
     graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, sfx, sfx_inputs,
-                         music_input, args.music_volume)
+                         music_input, args.music_volume, args.enhance)
     out = Path(args.out).expanduser().resolve() if args.out else default_output(video)
     out.parent.mkdir(parents=True, exist_ok=True)
     run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video, *extra,
          "-filter_complex", graph, "-map", "[vout]", "-map", "[aout]",
-         "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(info["fps"]),
+         "-c:v", "libx264", "-preset", "slow" if args.enhance else "medium",
+         "-crf", "17" if args.enhance else "18", "-r", str(info["fps"]),
          "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out], cwd=wd)
 
     kept = sum(e - s for s, e in segs)
@@ -683,6 +689,8 @@ def main():
     r.add_argument("--music", help="música de fondo: ruta a un .mp3/.wav, o `auto` para una base generada")
     r.add_argument("--music-volume", type=float, default=-27.0,
                    help="volumen de la música en LUFS (la voz va a -14; antes de bajar con la voz)")
+    r.add_argument("--enhance", action="store_true",
+                   help="mejora para videos de baja resolución (WhatsApp): reduce ruido, enfoca y realza color")
     r.add_argument("--upper", action="store_true", help="subtítulos en MAYÚSCULAS")
     r.set_defaults(func=cmd_render)
 

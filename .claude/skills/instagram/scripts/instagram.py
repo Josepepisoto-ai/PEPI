@@ -13,6 +13,11 @@ Subcomandos:
   publish-due  Publica lo que esté vencido en la cola (para correr con cron).
   comments     Lista comentarios recientes que todavía no tienen respuesta.
   reply        Responde un comentario.
+  private-reply  Manda un DM a quien comentó (entrega por palabra clave).
+  outliers     Rankea publicaciones por múltiplo sobre la mediana de cada cuenta.
+  discover     Baja publicaciones de cuentas del nicho (Business Discovery).
+  audit        Métricas de tus publicaciones: múltiplo de alcance y envíos por alcance.
+  profile      Muestra los datos de tu perfil.
 
 Requisitos: ffprobe (check-video), Pillow (carousel) y, para la API, las variables
 IG_ACCESS_TOKEN e IG_USER_ID (token de "Instagram API with Instagram Login").
@@ -137,19 +142,72 @@ def check_caption(text, max_hashtags=HASHTAG_MAX):
             "first_line": text.splitlines()[0] if text else "", "problems": problems}
 
 
+FEED_PREVIEW = 125
+URL_RE = re.compile(r"https?://\S+|www\.\S+|\b\w+\.(?:com|ar|net|org|io|me|link)\b(?:/\S*)?", re.I)
+EMOJI_RE = re.compile("[\U0001F300-\U0001FAFF☀-➿]")
+CTA_RE = re.compile(r"\b(coment[aá]|guard[aá]|compart[ií]|mand[aá]|escrib[ií]|segu[ií]|"
+                    r"contame|decime|etiquet[aá]|link en (la )?bio|respond[eé])\w*", re.I)
+
+
+def feed_preview(text):
+    """Lo que el feed muestra antes de "… más": hasta 2 líneas y ~125 caracteres."""
+    lines = text.split("\n")
+    shown = "\n".join(lines[:2])
+    cut = len(shown) > FEED_PREVIEW or len(lines) > 2
+    return shown[:FEED_PREVIEW].rstrip(), cut
+
+
+def lint_caption(text):
+    """Avisos de estilo (no bloquean la publicación)."""
+    w = []
+    first = text.lstrip().split("\n", 1)[0]
+    if not first.strip():
+        w.append("empieza con una línea vacía: el gancho tiene que ser lo primero")
+    if first.startswith(("#", "@")):
+        w.append("la primera línea arranca con # o @: arrancá con el gancho")
+    if len(first) > FEED_PREVIEW:
+        w.append(f"el gancho tiene {len(first)} caracteres y se corta en el feed (~{FEED_PREVIEW})")
+    if len(first) < 15 and len(text) > 60:
+        w.append("gancho muy corto: tiene que dar una razón para tocar \"más\"")
+    if URL_RE.search(text):
+        w.append("hay un link: en el texto no es clickeable; usá \"link en la bio\" o una palabra clave por DM")
+    if not CTA_RE.search(text) and "?" not in text:
+        w.append("no hay llamado a la acción (comentá, guardá, compartí, mandá…) ni pregunta")
+    for i, para in enumerate(p for p in text.split("\n\n") if p.strip()):
+        if len(para) > 300:
+            w.append(f"el párrafo {i + 1} tiene {len(para)} caracteres: partilo")
+    lines = [ln for ln in text.split("\n") if ln.strip()]
+    tagged = [bool(HASHTAG_RE.search(ln)) for ln in lines]
+    if any(tagged[i] and not all(tagged[i:]) for i in range(len(lines))):
+        w.append("hay hashtags en el medio del texto: van todos al final")
+    if text.count("—") >= 2:
+        w.append(f"{text.count('—')} rayas (—): suena a IA; pasalo por /ig-human")
+    if len(EMOJI_RE.findall(text)) > 6:
+        w.append(f"{len(EMOJI_RE.findall(text))} emojis: con 1–3 alcanza")
+    if len(re.findall(r"\b[A-ZÁÉÍÓÚÑ]{4,}\b", text)) > 3:
+        w.append("muchas palabras en MAYÚSCULAS")
+    return w
+
+
 def cmd_caption(args):
     text = read_text(args.file)
     r = check_caption(text, args.max_hashtags)
     print(f"{r['chars']}/{CAPTION_MAX} caracteres · {len(r['hashtags'])} hashtags · "
           f"{len(r['mentions'])} menciones")
-    print(f"Primera línea (lo que se ve sin tocar \"más\"): {r['first_line'][:125]}")
-    if len(r["first_line"]) > 125:
-        warn("la primera línea se corta a ~125 caracteres en el feed")
+    shown, cut = feed_preview(text)
+    print("\nLo que se ve en el feed antes de tocar \"más\":")
+    print("┌" + "─" * 60)
+    for line in shown.split("\n"):
+        print("│ " + line)
+    print("│ " + ("… más" if cut else "(entra completo)"))
+    print("└" + "─" * 60)
     for p in r["problems"]:
         print(f"  ✗ {p}")
+    for s in lint_caption(text):
+        print(f"  ⚠ {s}")
     if r["problems"]:
         sys.exit(1)
-    print("  ✓ texto válido")
+    print("  ✓ se puede publicar")
 
 
 # ---------------------------------------------------------------- carousel
@@ -315,13 +373,15 @@ def credentials():
     return token, user or "me"
 
 
-def api(method, path, params=None, dry_run=False, url=None, headers=None, data=None):
-    token, _ = credentials()
+def api(method, path, params=None, dry_run=False, url=None, headers=None, data=None,
+        json_body=None, soft=False, token=None, host=None):
+    """Llama a la Graph API. soft=True devuelve None ante un error de la API en vez de salir."""
+    token = token or credentials()[0]
     params = dict(params or {})
     if url is None:
-        url = f"{API_HOST}/{API_VERSION}/{path.lstrip('/')}"
+        url = f"{host or API_HOST}/{API_VERSION}/{path.lstrip('/')}"
     if dry_run:
-        shown = {k: v for k, v in params.items()}
+        shown = json_body if json_body is not None else params
         print(f"[dry-run] {method} {url} {json.dumps(shown, ensure_ascii=False)}")
         return {"id": "DRY_RUN", "status_code": "FINISHED", "permalink": "https://instagram.com/p/DRY_RUN"}
     hdrs = {"Authorization": f"Bearer {token}"}
@@ -330,6 +390,9 @@ def api(method, path, params=None, dry_run=False, url=None, headers=None, data=N
     if method == "GET":
         if params:
             url += "?" + urllib.parse.urlencode(params)
+    elif json_body is not None:
+        body = json.dumps(json_body).encode()
+        hdrs["Content-Type"] = "application/json"
     elif body is None:
         body = urllib.parse.urlencode(params).encode()
         hdrs["Content-Type"] = "application/x-www-form-urlencoded"
@@ -343,6 +406,9 @@ def api(method, path, params=None, dry_run=False, url=None, headers=None, data=N
             detail = json.loads(detail)["error"].get("message", detail)
         except (ValueError, KeyError, AttributeError):
             pass
+        if soft:
+            warn(f"la API respondió {e.code}: {detail}")
+            return None
         die(f"la API respondió {e.code}: {detail}")
     except urllib.error.URLError as e:
         die(f"no pude conectar con {url}: {e.reason}")
@@ -578,6 +644,198 @@ def cmd_reply(args):
     print(f"Respondido: {r.get('id')}")
 
 
+def cmd_private_reply(args):
+    """Mensaje privado a quien comentó (entrega por palabra clave). Una sola vez por comentario."""
+    if not args.yes and not args.dry_run:
+        die("esto manda un DM: confirmá con el usuario y agregá --yes")
+    _, user = credentials()
+    r = api("POST", f"{user}/messages", dry_run=args.dry_run,
+            json_body={"recipient": {"comment_id": args.comment_id}, "message": {"text": args.message}})
+    print(f"DM enviado: {r.get('message_id') or r.get('id')}")
+
+
+# ---------------------------------------------------------------- análisis
+
+def median(values):
+    vals = sorted(v for v in values if v is not None)
+    if not vals:
+        return None
+    mid = len(vals) // 2
+    return vals[mid] if len(vals) % 2 else (vals[mid - 1] + vals[mid]) / 2
+
+
+def to_num(v):
+    """'12.345' → 12345, '1,2K' / '1.2k' → 1200, '3,4 mil' → 3400, '2M' → 2000000."""
+    if v in (None, ""):
+        return None
+    if not isinstance(v, str):
+        return float(v)
+    t = v.strip().lower().replace(" ", "")
+    mult = 1
+    for suffix, m in (("mil", 1e3), ("k", 1e3), ("m", 1e6)):
+        if t.endswith(suffix):
+            t, mult = t[:-len(suffix)], m
+            break
+    if mult > 1:
+        t = t.replace(",", ".")
+    else:
+        t = t.replace(".", "").replace(",", "")
+    try:
+        return float(t) * mult
+    except ValueError:
+        return None
+
+
+def rank_outliers(rows, metric, group="account", min_posts=3):
+    """Agrega 'multiple' = métrica / mediana de su cuenta. Devuelve filas ordenadas."""
+    by_group = {}
+    for r in rows:
+        by_group.setdefault(r.get(group) or "?", []).append(r)
+    out = []
+    for name, items in by_group.items():
+        vals = [to_num(r.get(metric)) for r in items]
+        med = median(vals)
+        if len([v for v in vals if v is not None]) < min_posts:
+            warn(f"{name}: menos de {min_posts} publicaciones con {metric}; no se puede comparar")
+            continue
+        for r, v in zip(items, vals):
+            if v is None or not med:
+                continue
+            out.append(dict(r, metric=metric, value=v, median=med, multiple=round(v / med, 2)))
+    return sorted(out, key=lambda r: r["multiple"], reverse=True)
+
+
+def load_rows(path):
+    import csv
+    p = Path(path).expanduser()
+    text = read_text(p)
+    if p.suffix.lower() == ".json":
+        data = json.loads(text)
+        return data.get("rows", data) if isinstance(data, dict) else data
+    return list(csv.DictReader(text.splitlines()))
+
+
+def short(text, n=60):
+    t = " ".join((text or "").split())
+    return t if len(t) <= n else t[:n - 1] + "…"
+
+
+def cmd_outliers(args):
+    rows = load_rows(args.file)
+    metric = args.metric
+    if metric == "auto":
+        cols = set().union(*(r.keys() for r in rows)) if rows else set()
+        metric = next((m for m in ("views", "plays", "reach", "engagement", "likes") if m in cols), None)
+        if not metric:
+            die("no encontré columna de métrica (views, plays, reach, engagement o likes); usá --metric")
+        if metric == "likes" and "comments" in cols:
+            for r in rows:
+                r["engagement"] = (to_num(r.get("likes")) or 0) + (to_num(r.get("comments")) or 0)
+            metric = "engagement"
+    ranked = [r for r in rank_outliers(rows, metric, min_posts=args.min_posts) if r["multiple"] >= args.min]
+    print(f"{len(ranked)} publicaciones con {metric} ≥ {args.min}x la mediana de su cuenta\n")
+    print(f"{'múltiplo':>8}  {'cuenta':<20} {metric:>10}  texto")
+    for r in ranked[:args.top]:
+        print(f"{r['multiple']:>7}x  {short(r.get('account'), 20):<20} {int(r['value']):>10}  "
+              f"{short(r.get('caption') or r.get('hook') or r.get('url'))}")
+    if args.out:
+        Path(args.out).expanduser().write_text(json.dumps(ranked[:args.top], ensure_ascii=False, indent=2))
+        print(f"\nGuardado en {args.out}", file=sys.stderr)
+
+
+def cmd_discover(args):
+    """Últimas publicaciones de cuentas profesionales ajenas (Business Discovery)."""
+    import csv
+    token = os.environ.get("IG_FB_ACCESS_TOKEN")
+    user = os.environ.get("IG_FB_USER_ID")
+    if not token or not user:
+        die("Business Discovery necesita IG_FB_ACCESS_TOKEN e IG_FB_USER_ID (token de Instagram API con "
+            "Facebook Login, permiso instagram_basic). Sin eso, armá el CSV a mano (ver /ig-viral).")
+    rows = []
+    for username in args.usernames:
+        username = username.lstrip("@")
+        fields = (f"business_discovery.username({username}){{username,followers_count,"
+                  f"media.limit({args.posts}){{caption,like_count,comments_count,media_product_type,"
+                  f"permalink,timestamp}}}}")
+        r = api("GET", user, {"fields": fields}, token=token, host="https://graph.facebook.com", soft=True)
+        if not r:
+            continue
+        bd = r.get("business_discovery", {})
+        for m in bd.get("media", {}).get("data", []):
+            rows.append({"account": bd.get("username"), "followers": bd.get("followers_count"),
+                         "url": m.get("permalink"), "date": m.get("timestamp", "")[:10],
+                         "format": m.get("media_product_type"), "likes": m.get("like_count"),
+                         "comments": m.get("comments_count"),
+                         "caption": " ".join((m.get("caption") or "").split())})
+    out = Path(args.out).expanduser()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", newline="", encoding="utf-8") as f:
+        cols = ["account", "followers", "url", "date", "format", "likes", "comments", "caption"]
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        w.writerows(rows)
+    print(f"{len(rows)} publicaciones de {len(args.usernames)} cuentas → {out}")
+
+
+def own_media(user, limit):
+    items, after = [], None
+    while len(items) < limit:
+        params = {"fields": "id,caption,media_type,media_product_type,permalink,timestamp,"
+                            "like_count,comments_count", "limit": min(50, limit - len(items))}
+        if after:
+            params["after"] = after
+        page = api("GET", f"{user}/media", params)
+        items += page.get("data", [])
+        after = page.get("paging", {}).get("cursors", {}).get("after")
+        if not after or not page.get("data"):
+            break
+    return items[:limit]
+
+
+def cmd_audit(args):
+    _, user = credentials()
+    media = own_media(user, args.posts)
+    rows = []
+    for m in media:
+        ins = api("GET", f"{m['id']}/insights",
+                  {"metric": "views,reach,saved,shares,likes,comments,total_interactions"}, soft=True) \
+            or api("GET", f"{m['id']}/insights", {"metric": "reach,saved,shares"}, soft=True) or {}
+        vals = {d["name"]: (d.get("values") or [{}])[0].get("value", d.get("total_value", {}).get("value"))
+                for d in ins.get("data", [])}
+        reach = vals.get("reach") or 0
+        rows.append({"account": "yo", "url": m.get("permalink"), "date": m.get("timestamp", "")[:10],
+                     "format": m.get("media_product_type") or m.get("media_type"),
+                     "caption": " ".join((m.get("caption") or "").split()),
+                     "views": vals.get("views"), "reach": reach or None,
+                     "likes": vals.get("likes", m.get("like_count")),
+                     "comments": vals.get("comments", m.get("comments_count")),
+                     "shares": vals.get("shares"), "saves": vals.get("saved"),
+                     "sends_per_1k": round(1000 * (vals.get("shares") or 0) / reach, 1) if reach else None,
+                     "saves_per_1k": round(1000 * (vals.get("saved") or 0) / reach, 1) if reach else None})
+    ranked = rank_outliers(rows, "reach", min_posts=3)
+    send_med = median(r["sends_per_1k"] for r in rows)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    out = CACHE_DIR / "audit.json"
+    out.write_text(json.dumps({"median_reach": ranked[0]["median"] if ranked else None,
+                               "median_sends_per_1k": send_med, "posts": ranked},
+                              ensure_ascii=False, indent=2))
+    print(f"{len(rows)} publicaciones · alcance mediano {int(ranked[0]['median']) if ranked else '-'} · "
+          f"envíos/1000 de alcance mediano {send_med}\n")
+    print(f"{'múlt.':>6} {'alcance':>8} {'env/1k':>7} {'guar/1k':>8}  {'formato':<9} {'fecha':<10}  texto")
+    for r in ranked:
+        print(f"{r['multiple']:>5}x {int(r['value']):>8} {r['sends_per_1k'] or 0:>7} {r['saves_per_1k'] or 0:>8}  "
+              f"{(r['format'] or '')[:9]:<9} {r['date']:<10}  {short(r['caption'], 50)}")
+    print(f"\nDetalle en {out}", file=sys.stderr)
+
+
+def cmd_profile(args):
+    _, user = credentials()
+    base = "username,name,account_type,followers_count,follows_count,media_count,profile_picture_url"
+    r = api("GET", user, {"fields": base + ",biography,website"}, soft=True) \
+        or api("GET", user, {"fields": base})
+    print(json.dumps(r, ensure_ascii=False, indent=2))
+
+
 # ---------------------------------------------------------------- main
 
 def main():
@@ -641,6 +899,35 @@ def main():
     c.add_argument("--yes", action="store_true", help="el usuario aprobó la respuesta")
     c.add_argument("--dry-run", action="store_true")
     c.set_defaults(func=cmd_reply)
+
+    c = sub.add_parser("private-reply", help="DM a quien comentó (palabra clave)")
+    c.add_argument("comment_id")
+    c.add_argument("message")
+    c.add_argument("--yes", action="store_true", help="el usuario aprobó el mensaje")
+    c.add_argument("--dry-run", action="store_true")
+    c.set_defaults(func=cmd_private_reply)
+
+    c = sub.add_parser("outliers", help="rankea publicaciones por múltiplo sobre la mediana de su cuenta")
+    c.add_argument("file", help="CSV o JSON con account, url, caption y una métrica (views, likes…)")
+    c.add_argument("--metric", default="auto")
+    c.add_argument("--min", type=float, default=2.0, help="múltiplo mínimo (default 2x)")
+    c.add_argument("--min-posts", type=int, default=3, help="publicaciones mínimas por cuenta")
+    c.add_argument("--top", type=int, default=30)
+    c.add_argument("--out", help="guardar el ranking en JSON")
+    c.set_defaults(func=cmd_outliers)
+
+    c = sub.add_parser("discover", help="baja publicaciones de cuentas del nicho (Business Discovery)")
+    c.add_argument("usernames", nargs="+")
+    c.add_argument("--posts", type=int, default=25)
+    c.add_argument("--out", default=str(CACHE_DIR / "nicho.csv"))
+    c.set_defaults(func=cmd_discover)
+
+    c = sub.add_parser("audit", help="métricas de tus publicaciones, rankeadas por múltiplo")
+    c.add_argument("--posts", type=int, default=30)
+    c.set_defaults(func=cmd_audit)
+
+    c = sub.add_parser("profile", help="datos de tu perfil")
+    c.set_defaults(func=cmd_profile)
 
     args = p.parse_args()
     args.func(args)

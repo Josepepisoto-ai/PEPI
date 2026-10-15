@@ -1,4 +1,4 @@
-"""Genera las 75 historias (1080x1920) de historias-instagram-15-dias.md con la marca JS (negro, dorado y azul).
+"""Genera las 75 historias (1080x1920) de historias-instagram-15-dias.md con la marca JS Personal Trainer (negro, bronce y plata).
 
 Uso: python3 contenido/generar_historias.py
 Salida: contenido/historias/dia-XX/NN.png y una hoja de contacto por día.
@@ -6,17 +6,17 @@ Salida: contenido/historias/dia-XX/NN.png y una hoja de contacto por día.
 import re
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
-# Colores del logo JS (marca personal PF Jose Pepi Soto).
-FONDO = (11, 13, 17)          # negro azulado de los bordes
-FONDO_CENTRO = (24, 25, 32)   # brillo suave del centro
-ORO_CLARO = (232, 200, 119)
-ORO_OSCURO = (172, 136, 66)
-ORO = (219, 177, 96)
-AZUL = (72, 112, 136)         # azul acero de la "J"
-CREMA = (236, 230, 218)       # texto principal
-PIEDRA = (164, 156, 145)      # texto secundario
+# Colores del logo oficial JS Personal Trainer.
+FONDO = (1, 1, 1)             # negro del logo
+FONDO_CENTRO = (24, 19, 15)   # brillo cálido muy suave en el centro
+ORO_CLARO = (218, 172, 120)   # bronce claro (brillos del cerebro)
+ORO_OSCURO = (150, 100, 60)   # bronce oscuro (sombras)
+ORO = (192, 144, 96)          # bronce medio
+PLATA = (224, 224, 224)       # letras JS
+CREMA = (240, 240, 240)       # texto principal
+GRIS = (110, 104, 98)         # detalles secundarios
 
 W, H = 1080, 1920
 MARGEN = 96
@@ -114,7 +114,7 @@ def ajustar(draw, palabras, ancho, alto, maximo=104, minimo=52):
 
 
 def gradiente_oro(alto):
-    """Banda vertical de oro claro a oro oscuro, como las letras del logo."""
+    """Banda vertical de bronce claro a bronce oscuro, como el cerebro del logo."""
     g = Image.new("RGB", (1, alto))
     for y in range(alto):
         t = y / max(alto - 1, 1)
@@ -123,7 +123,7 @@ def gradiente_oro(alto):
 
 
 def escribir(img, palabras, caja, todo_oro=False, alinear_arriba=False, maximo=104):
-    """Texto crema; las frases ancla (o todo, si todo_oro) van en dorado degradado."""
+    """Texto blanco; las frases ancla (o todo, si todo_oro) van en bronce degradado."""
     d = ImageDraw.Draw(img)
     x0, y0, x1, y1 = caja
     fuente, lineas, interlinea = ajustar(d, palabras, x1 - x0, y1 - y0, maximo=maximo)
@@ -148,7 +148,7 @@ def escribir(img, palabras, caja, todo_oro=False, alinear_arriba=False, maximo=1
 
 
 def fondo():
-    """Negro azulado con un brillo suave en el centro, como el post de referencia."""
+    """Negro del logo con un brillo cálido muy suave en el centro."""
     chico = Image.new("RGB", (108, 192), FONDO)
     for y in range(192):
         for x in range(108):
@@ -168,16 +168,24 @@ def logo(ancho):
     return im, mascara.filter(ImageFilter.GaussianBlur(ancho // 16))
 
 
-def marco(img, numero, mostrar_logo=True, ancho_logo=230):
+def pegar_logo(img, ancho, centro_y=None, y=None):
+    """El logo tiene fondo negro: se combina con "lighter" para que el negro desaparezca."""
+    im, _ = logo(ancho)
+    x = (W - im.width) // 2
+    y = centro_y - im.height // 2 if centro_y is not None else y
+    zona = img.crop((x, y, x + im.width, y + im.height))
+    img.paste(ImageChops.lighter(zona, im), (x, y))
+    return y + im.height
+
+
+def marco(img, numero, mostrar_logo=True, ancho_logo=250):
     d = ImageDraw.Draw(img)
-    d.rectangle((36, 36, W - 37, H - 37), outline=(48, 46, 44), width=2)
+    d.rectangle((36, 36, W - 37, H - 37), outline=(44, 34, 26), width=2)
     f = ImageFont.truetype(FUENTE_CHICA, 30)
-    d.text((W - MARGEN, H - 150), f"{numero} / 5", font=f, fill=AZUL, anchor="ra")
+    d.text((W - MARGEN, H - 150), f"{numero} / 5", font=f, fill=GRIS, anchor="ra")
     d.text((MARGEN, H - 150), "P F   J O S E   P E P I   S O T O", font=f, fill=ORO)
     if mostrar_logo:
-        im, m = logo(ancho_logo)
-        img.paste(im, ((W - im.width) // 2, 110), m)
-        return 110 + im.height
+        return pegar_logo(img, ancho_logo, y=100)
     return 110
 
 
@@ -190,7 +198,7 @@ def render(story, numero):
         tope = marco(img, numero)
         escribir(img, segmentos(texto), (MARGEN, tope + 120, W - MARGEN, H - 260))
     elif tipo == "dorado":
-        # Guion de video a cámara: todo en dorado. Se puede publicar así o grabar encima.
+        # Guion de video a cámara: todo en bronce. Se puede publicar así o grabar encima.
         tope = marco(img, numero)
         escribir(img, segmentos(texto), (MARGEN, tope + 120, W - MARGEN, H - 260), todo_oro=True)
     elif tipo == "foto":
@@ -198,15 +206,14 @@ def render(story, numero):
         marco(img, numero, mostrar_logo=False)
         d = ImageDraw.Draw(img)
         d.rectangle((MARGEN, 200, W - MARGEN, 1080), outline=ORO_OSCURO, width=3)
-        im, m = logo(260)
-        img.paste(im, ((W - im.width) // 2, 640 - im.height // 2), m)
+        pegar_logo(img, 300, centro_y=640)
         d.line((MARGEN, 1170, MARGEN + 120, 1170), fill=ORO, width=6)
         escribir(img, segmentos(texto), (MARGEN, 1220, W - MARGEN, H - 240), maximo=88)
     else:  # interactiva: pregunta arriba, lugar libre abajo para el sticker
-        tope = marco(img, numero, ancho_logo=170)
+        tope = marco(img, numero, ancho_logo=190)
         pregunta = texto.split("→")[0].strip()
         d = ImageDraw.Draw(img)
-        d.line((MARGEN, tope + 90, MARGEN + 120, tope + 90), fill=AZUL, width=6)
+        d.line((MARGEN, tope + 90, MARGEN + 120, tope + 90), fill=PLATA, width=6)
         escribir(img, segmentos(pregunta), (MARGEN, tope + 140, W - MARGEN, tope + 760), alinear_arriba=True, maximo=96)
     return img
 

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --line:rgba(217,178,95,.28);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{
+    width:1080px;height:1350px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 85% 55% at 50% 48%, #1a1b21 0%, var(--bg) 72%);
+    padding:120px 96px 150px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  }
+  .slide::before{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+  .num{position:absolute;top:70px;right:84px;font-weight:600;font-size:24px;letter-spacing:4px;color:var(--muted)}
+  .brand{position:absolute;bottom:62px;left:84px;display:flex;align-items:center;gap:14px;
+         font-weight:600;font-size:22px;letter-spacing:6px;color:var(--muted)}
+  .brand img{height:52px}
+  .swipe{position:absolute;bottom:68px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--gold)}
+
+  /* número protagonista */
+  .big{font-weight:900;font-size:430px;line-height:.86;letter-spacing:-18px;margin-left:-18px}
+  .unit{font-weight:700;font-size:30px;letter-spacing:12px;color:var(--gold);text-transform:uppercase;margin-top:18px}
+  .phrase{font-weight:700;font-size:58px;line-height:1.2;max-width:860px}
+  .phrase .soft{color:#bdb6a8;font-weight:500}
+  .minus{display:inline-block;margin-top:34px;margin-bottom:46px;font-weight:800;font-size:40px;letter-spacing:2px;
+         color:var(--ink);border:2px solid var(--line);border-radius:999px;padding:12px 34px}
+  .minus span{color:var(--gold)}
+
+  /* barra de la semana: lo que queda vs lo que se fue */
+  .bar{position:absolute;left:96px;right:96px;bottom:140px;height:14px;border-radius:7px;background:#25262c;overflow:hidden}
+  .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .bar-label{position:absolute;left:96px;right:96px;bottom:168px;display:flex;justify-content:space-between;
+             font-weight:600;font-size:22px;letter-spacing:3px;color:var(--muted)}
+
+  .pill{display:inline-block;border:2px solid var(--gold);color:var(--gold-l);border-radius:999px;
+        padding:22px 56px;font-weight:800;font-size:42px;letter-spacing:4px;margin-top:56px}
+  .small{font-weight:600;font-size:30px;letter-spacing:6px;color:var(--muted);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide" id="s1">
+  <div class="big gold">168</div>
+  <div class="unit">horas por semana</div>
+  <div class="phrase" style="margin-top:70px;font-size:60px;max-width:none">Tu semana tiene 168 horas.<br>Entrenar 3 es el <span class="gold">1,8%.</span></div>
+  <div class="small" style="margin-top:56px">Hacé la cuenta conmigo</div>
+  <div class="brand"><img src="logo.png">JS</div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<!-- 2 · DORMIR -->
+<section class="slide" id="s2">
+  <div class="num">02 / 09</div>
+  <div class="phrase">Dormís 7 horas por noche.</div>
+  <div class="minus"><span>−</span> 49 h</div>
+  <div class="big gold">119</div>
+  <div class="unit">quedan</div>
+  <div class="bar-label"><span>0</span><span>168 H</span></div>
+  <div class="bar"><i style="width:calc(119/168*100%)"></i></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 3 · TRABAJO -->
+<section class="slide" id="s3">
+  <div class="num">03 / 09</div>
+  <div class="phrase">Trabajás 10 horas, 5 días.</div>
+  <div class="minus"><span>−</span> 50 h</div>
+  <div class="big gold">69</div>
+  <div class="unit">quedan</div>
+  <div class="bar-label"><span>0</span><span>168 H</span></div>
+  <div class="bar"><i style="width:calc(69/168*100%)"></i></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 4 · TRASLADOS -->
+<section class="slide" id="s4">
+  <div class="num">04 / 09</div>
+  <div class="phrase">Traslados, compras, casa, trámites.</div>
+  <div class="minus"><span>−</span> 20 h</div>
+  <div class="big gold">49</div>
+  <div class="unit">quedan</div>
+  <div class="bar-label"><span>0</span><span>168 H</span></div>
+  <div class="bar"><i style="width:calc(49/168*100%)"></i></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 5 · FAMILIA -->
+<section class="slide" id="s5">
+  <div class="num">05 / 09</div>
+  <div class="phrase">Tu hija, tu familia, tu gente.</div>
+  <div class="minus"><span>−</span> 25 h</div>
+  <div class="big gold">24</div>
+  <div class="unit">quedan</div>
+  <div class="bar-label"><span>0</span><span>168 H</span></div>
+  <div class="bar"><i style="width:calc(24/168*100%)"></i></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 6 · ¿A DÓNDE VAN? -->
+<section class="slide" id="s6">
+  <div class="num">06 / 09</div>
+  <div class="small" style="margin-bottom:40px">Quedan</div>
+  <div class="big gold">24</div>
+  <div class="unit">horas</div>
+  <div class="phrase" style="margin-top:70px;font-size:52px;max-width:none">Nadie sabe bien a dónde van.<br><span class="soft">El celular a las 23 sabe algo.</span></div>
+  <div class="bar-label"><span>0</span><span>168 H</span></div>
+  <div class="bar"><i style="width:calc(24/168*100%)"></i></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 7 · ENTRA -->
+<section class="slide" id="s7">
+  <div class="num">07 / 09</div>
+  <div class="phrase">Entrenar 3 horas <span class="gold">entra.</span></div>
+  <div class="big gold" style="margin-top:50px">3</div>
+  <div class="unit">de 24</div>
+  <div class="phrase" style="margin-top:70px;font-size:46px"><span class="soft">Son 3 veces una hora.<br>O 9 veces 20 minutos.</span></div>
+  <div class="bar-label"><span>0</span><span>168 H</span></div>
+  <div class="bar"><i style="width:calc(24/168*100%);background:#3a3b42"></i><i style="width:calc(3/168*100%)"></i></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 8 · EL PROBLEMA -->
+<section class="slide" id="s8">
+  <div class="num">08 / 09</div>
+  <div class="phrase" style="font-size:88px;line-height:1.08">El problema<br>no es el <span style="text-decoration:line-through;text-decoration-color:var(--gold);text-decoration-thickness:9px;color:var(--muted)">tiempo.</span></div>
+  <div style="width:120px;height:4px;background:var(--gold);margin:60px 0"></div>
+  <div class="phrase" style="font-size:52px"><span class="soft">Es que nadie te armó la semana con</span> <span class="serif gold" style="font-size:60px">tus horarios reales.</span></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 9 · CTA -->
+<section class="slide" id="s9">
+  <div class="num">09 / 09</div>
+  <img src="logo.png" style="width:330px;margin-bottom:60px">
+  <div class="phrase" style="font-size:64px">Guardalo.<br>Hacé tu cuenta<br>con <span class="gold">tus números.</span></div>
+  <div class="phrase" style="margin-top:44px;font-size:42px"><span class="soft">Si querés que la hagamos juntos,</span></div>
+  <div class="pill">ESCRIBIME "AGENDA"</div>
+</section>
+
+</body>
+</html>

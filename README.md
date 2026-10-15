@@ -24,3 +24,30 @@ Uso:
 
 O pasale un video a Claude y decile "hacé lo mismo que el anterior".
 El resultado queda en `~/Downloads/<nombre>-final.mp4`.
+
+## Skill `/instagram`
+
+Prepara y publica contenido de Instagram en español:
+
+- **Reel**: edita el video con `video-tiktok`, con los subtítulos más arriba para la interfaz de Reels, y verifica que cumpla los requisitos.
+- **Texto**: gancho, llamado a la acción y hasta 5 hashtags, validado.
+- **Carrusel**: genera las imágenes 1080x1350 a partir de un JSON (texto o fotos).
+- **Publicar o programar** con la API de Instagram (cuenta profesional y token en `IG_ACCESS_TOKEN`).
+- **Comentarios**: lista las preguntas sin responder, propone respuestas y las publica cuando las aprobás.
+
+Para usarla en cualquier sesión, copiá las dos skills (Reels usa `video-tiktok`):
+
+```bash
+cp -R .claude/skills/instagram .claude/skills/video-tiktok ~/.claude/skills/
+pip install pillow
+```
+
+Uso:
+
+```
+/instagram reel ~/Downloads/video.mp4
+/instagram carrusel 5 errores que arruinan tus Reels
+/instagram comentarios
+```
+
+Nada se publica ni se responde sin que lo confirmes.

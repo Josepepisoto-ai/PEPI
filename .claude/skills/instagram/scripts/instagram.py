@@ -250,12 +250,25 @@ def wrap(draw, text, font, max_width):
     return lines
 
 
-def cover(img, w, h):
+def cover(img, w, h, focus=(0.5, 0.5)):
+    """Recorta para llenar w x h; focus (x, y) en fracciones elige qué parte queda."""
     from PIL import Image
     scale = max(w / img.width, h / img.height)
     img = img.resize((round(img.width * scale), round(img.height * scale)), Image.LANCZOS)
-    left, top = (img.width - w) // 2, (img.height - h) // 2
+    left = min(max(0, round(img.width * focus[0] - w / 2)), img.width - w)
+    top = min(max(0, round(img.height * focus[1] - h / 2)), img.height - h)
     return img.crop((left, top, left + w, top + h))
+
+
+def contain(img, w, h, top_ratio=0.5):
+    """Encaja la foto entera sobre una versión desenfocada de sí misma (para fotos apaisadas)."""
+    from PIL import Image, ImageEnhance, ImageFilter
+    bg = cover(img, w, h).filter(ImageFilter.GaussianBlur(40))
+    bg = ImageEnhance.Brightness(bg).enhance(0.55)
+    scale = min(w / img.width, h / img.height)
+    fg = img.resize((round(img.width * scale), round(img.height * scale)), Image.LANCZOS)
+    bg.paste(fg, ((w - fg.width) // 2, round((h - fg.height) * top_ratio)))
+    return bg
 
 
 def render_slide(slide, style, index, total, base_dir):
@@ -272,8 +285,15 @@ def render_slide(slide, style, index, total, base_dir):
         src = Path(slide["image"]).expanduser()
         if not src.is_absolute():
             src = base_dir / src
-        img = cover(Image.open(src).convert("RGB"), SLIDE_W, SLIDE_H)
-        if slide.get("title") or slide.get("body"):
+        from PIL import ImageOps
+        img = ImageOps.exif_transpose(Image.open(src)).convert("RGB")
+        if slide.get("flip"):
+            img = ImageOps.mirror(img)
+        if slide.get("fit") == "contain":
+            img = contain(img, SLIDE_W, SLIDE_H, slide.get("top", 0.3))
+        else:
+            img = cover(img, SLIDE_W, SLIDE_H, tuple(slide.get("focus", (0.5, 0.5))))
+        if (slide.get("title") or slide.get("body")) and slide.get("text_pos") != "top":
             # degradé oscuro abajo para que el texto se lea sobre la foto
             shade = Image.new("L", (1, SLIDE_H))
             for y in range(SLIDE_H):
@@ -302,7 +322,9 @@ def render_slide(slide, style, index, total, base_dir):
 
     gap = 48
     total_h = sum(block_height(l, f, s) for l, f, _, s in blocks) + gap * max(0, len(blocks) - 1)
-    if slide.get("image"):
+    if slide.get("text_pos") == "top":
+        y = margin + 40
+    elif slide.get("image"):
         y = SLIDE_H - margin - 40 - total_h
     else:
         y = (SLIDE_H - total_h) // 2

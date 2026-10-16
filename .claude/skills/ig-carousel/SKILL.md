@@ -45,6 +45,15 @@ Opcionales: `font`/`body_font` (ruta a .ttf/.otf; usar la tipografía de la marc
 `numbers: false`, y por slide `background`, `color`, `title_size`, `body_size`. Las fotos se recortan a 4:5
 con degradé si llevan texto. Si el usuario tiene colores de marca, usarlos.
 
+Con fotos del usuario, mirarlas primero con Read y decidir por slide:
+- `"flip": true` si la foto está en espejo (selfies: texto o logos invertidos en ropa o carteles).
+- `"focus": [x, y]` (0–1) para elegir qué parte queda al recortar (ej. `[0.5, 0.35]` baja la foto).
+- `"fit": "contain"` + `"top": 0.15` para fotos apaisadas o grupales: entra entera arriba sobre un fondo
+  desenfocado y el texto va abajo, sin tapar caras.
+- `"text_pos": "top"` cuando la parte de arriba de la foto está vacía (cielo, techo, fondo oscuro).
+Nunca dejar texto sobre una cara. Las fotos van en orden de historia, no de calidad: la portada es la
+que mejor cuenta el resultado.
+
 `python3 $I carousel ~/Downloads/<tema>.json`
 
 ## 4. Revisar

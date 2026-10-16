@@ -9,6 +9,13 @@ argument-hint: <objetivo del día o tema> [producto/oferta]
 Salida: `~/Downloads/historias-<fecha>.md`. Las historias se suben y los stickers se agregan desde la
 app: la API de Instagram no publica stickers interactivos.
 
+**Imágenes 1080x1920.** Si el usuario pasa fotos, generar las historias con
+`python3 ../instagram/scripts/instagram.py carousel <historias.json> --out <carpeta>` usando
+`"style": {"format": "story", …}`: mismo JSON que `/ig-carousel` (`flip`, `focus`, `fit: "contain"`,
+`text_pos`), pero el texto respeta la zona segura (260 px arriba, 380 abajo) y no lleva numeración.
+Con `fit: "contain"` queda una franja libre entre la foto y el texto: ahí va el sticker. Sin emojis en
+la imagen (la tipografía puede no tenerlos); los emojis van en los stickers. Mirar cada imagen con Read.
+
 ## Qué sticker cumple qué función
 
 | Sticker | Función | Cuándo |

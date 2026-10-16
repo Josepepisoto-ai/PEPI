@@ -48,6 +48,7 @@ HASHTAG_MAX = 5          # límite actual de Instagram por publicación
 MENTION_MAX = 20
 CAROUSEL_MAX = 10        # máximo de elementos por carrusel en la API
 SLIDE_W, SLIDE_H = 1080, 1350
+SAFE_TOP, SAFE_BOTTOM = 96, 96   # historias: la interfaz tapa ~250 px arriba y ~340 abajo
 
 
 # ---------------------------------------------------------------- utilidades
@@ -323,9 +324,9 @@ def render_slide(slide, style, index, total, base_dir):
     gap = 48
     total_h = sum(block_height(l, f, s) for l, f, _, s in blocks) + gap * max(0, len(blocks) - 1)
     if slide.get("text_pos") == "top":
-        y = margin + 40
+        y = SAFE_TOP + 40
     elif slide.get("image"):
-        y = SLIDE_H - margin - 40 - total_h
+        y = SLIDE_H - SAFE_BOTTOM - 40 - total_h
     else:
         y = (SLIDE_H - total_h) // 2
     for lines, font, color, spacing in blocks:
@@ -335,17 +336,17 @@ def render_slide(slide, style, index, total, base_dir):
         y += gap
 
     if not slide.get("image") and blocks:
-        draw.rectangle((margin, margin, margin + 120, margin + 14), fill=accent)
+        draw.rectangle((margin, SAFE_TOP, margin + 120, SAFE_TOP + 14), fill=accent)
     if total > 1 and style.get("numbers", True):
         counter_font = ImageFont.truetype(style["body_font"], 34) if style["body_font"] \
             else ImageFont.load_default()
         label = f"{index}/{total}"
         tw = draw.textlength(label, font=counter_font)
-        draw.text((SLIDE_W - margin - tw, SLIDE_H - margin), label, font=counter_font, fill=fg)
+        draw.text((SLIDE_W - margin - tw, SLIDE_H - SAFE_BOTTOM), label, font=counter_font, fill=fg)
     if style.get("handle"):
         handle_font = ImageFont.truetype(style["body_font"], 34) if style["body_font"] \
             else ImageFont.load_default()
-        draw.text((margin, SLIDE_H - margin), style["handle"], font=handle_font, fill=fg)
+        draw.text((margin, SLIDE_H - SAFE_BOTTOM), style["handle"], font=handle_font, fill=fg)
     return img
 
 
@@ -359,11 +360,16 @@ def cmd_carousel(args):
     slides = spec.get("slides") or []
     if not slides:
         die("el JSON no tiene \"slides\"")
-    if len(slides) > CAROUSEL_MAX:
+    if len(slides) > CAROUSEL_MAX and (spec.get("style") or {}).get("format") != "story":
         die(f"{len(slides)} slides; el máximo es {CAROUSEL_MAX}")
     style = {"background": "#111111", "color": "#FFFFFF", "accent": "#FFD400",
              "font": None, "body_font": None, "handle": None, "numbers": True}
     style.update(spec.get("style") or {})
+    if style.get("format") == "story":
+        global SLIDE_H, SAFE_TOP, SAFE_BOTTOM
+        SLIDE_H, SAFE_TOP, SAFE_BOTTOM = 1920, 260, 380
+        if "numbers" not in (spec.get("style") or {}):
+            style["numbers"] = False
     style["font"] = style["font"] if style["font"] and Path(style["font"]).exists() \
         else find_font([style["font"] or "Montserrat ExtraBold", "Montserrat", "Inter", "DejaVu Sans"])
     style["body_font"] = style["body_font"] if style["body_font"] and Path(style["body_font"]).exists() \

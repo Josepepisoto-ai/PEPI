@@ -294,11 +294,13 @@ def render_slide(slide, style, index, total, base_dir):
             img = contain(img, SLIDE_W, SLIDE_H, slide.get("top", 0.3))
         else:
             img = cover(img, SLIDE_W, SLIDE_H, tuple(slide.get("focus", (0.5, 0.5))))
-        if (slide.get("title") or slide.get("body")) and slide.get("text_pos") != "top":
-            # degradé oscuro abajo para que el texto se lea sobre la foto
+        if slide.get("title") or slide.get("body"):
+            # degradé oscuro (abajo, o arriba con text_pos "top") para que el texto se lea sobre la foto
+            top = slide.get("text_pos") == "top"
             shade = Image.new("L", (1, SLIDE_H))
             for y in range(SLIDE_H):
-                shade.putpixel((0, y), int(200 * max(0, (y - SLIDE_H * 0.45) / (SLIDE_H * 0.55))))
+                t = (SLIDE_H * 0.45 - y) / (SLIDE_H * 0.45) if top else (y - SLIDE_H * 0.45) / (SLIDE_H * 0.55)
+                shade.putpixel((0, y), int(200 * max(0, t)))
             black = Image.new("RGB", (SLIDE_W, SLIDE_H), (0, 0, 0))
             img = Image.composite(black, img, shade.resize((SLIDE_W, SLIDE_H)))
             fg = (255, 255, 255)

@@ -57,6 +57,13 @@ y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ign
   lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
 - Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
 
+## Título gancho (opcional, para videos "virales")
+
+`render ... --hook "Frase corta|segunda línea" --hook-dur 3` muestra arriba, al inicio, un título
+en mayúsculas (texto negro sobre caja amarilla, con un pequeño rebote). Elegir la frase más fuerte
+del video (máx. ~6 palabras). Para un pedido de "video viral": `--hook`, `--trim-silence`,
+zooms y sonidos en `fx.json`, `--music auto` y `--enhance`.
+
 ## Pausas más cortas (opcional)
 
 Whisper a veces estira palabras sobre los silencios, así que algunas pausas no se ven en la

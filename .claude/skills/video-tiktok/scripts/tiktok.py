@@ -333,7 +333,7 @@ def group_words(words, max_words, max_chars, max_gap=0.6):
     return groups
 
 
-def build_ass(words, segs, path, font, font_size, margin_v, upper):
+def build_ass(words, segs, path, font, font_size, margin_v, upper, hook=None, hook_dur=3.0):
     mapped = []
     for w in words:
         s, e = remap(w["start"], segs), remap(w["end"], segs)
@@ -352,6 +352,7 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: TikTok,{font},{font_size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,7,3,2,80,80,{margin_v},1
+Style: Hook,{font},{int(font_size * 1.05)},&H00000000,&H00000000,&H0000FFFF,&H00000000,-1,0,0,0,100,100,0,0,3,18,0,8,90,90,230,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -373,6 +374,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             end = g[i + 1]["start"] if i + 1 < len(g) else group_end
             parts = [(yellow + x["word"] + reset) if j == i else x["word"] for j, x in enumerate(g)]
             lines.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},TikTok,,0,0,0,,{' '.join(parts)}")
+    if hook:
+        # Título gancho arriba (texto negro sobre caja amarilla) que entra con un pequeño rebote.
+        pop = r"{\fscx80\fscy80\t(0,150,\fscx108\fscy108)\t(150,260,\fscx100\fscy100)\fad(0,250)}"
+        text = ass_escape(hook.upper()).replace("|", r"\N")
+        lines.append(f"Dialogue: 1,{ass_time(0)},{ass_time(hook_dur)},Hook,,0,0,0,,{pop}{text}")
     Path(path).write_text(header + "\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -634,7 +640,8 @@ def cmd_render(args):
     ass_name = None
     if not args.no_subs:
         ass_name = "subs.ass"
-        build_ass(words, segs, wd / ass_name, args.font, args.font_size, args.margin_v, args.upper)
+        build_ass(words, segs, wd / ass_name, args.font, args.font_size, args.margin_v, args.upper,
+                  args.hook, args.hook_dur)
 
     zooms, sfx, sfx_inputs, extra = [], [], {}, []
     fx_path = Path(args.fx) if args.fx else wd / "fx.json"
@@ -718,6 +725,8 @@ def main():
     r.add_argument("--music", help="música de fondo: ruta a un .mp3/.wav, o `auto` para una base generada")
     r.add_argument("--music-volume", type=float, default=-27.0,
                    help="volumen de la música en LUFS (la voz va a -14; antes de bajar con la voz)")
+    r.add_argument("--hook", help="título gancho arriba al inicio; `|` corta la línea")
+    r.add_argument("--hook-dur", type=float, default=3.0, help="segundos que se ve el título gancho")
     r.add_argument("--trim-silence", action="store_true",
                    help="cortar también los silencios detectados en el audio (pausas más cortas)")
     r.add_argument("--enhance", action="store_true",

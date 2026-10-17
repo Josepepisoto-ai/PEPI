@@ -39,6 +39,60 @@ Si pidió mayúsculas, `--upper`.
    `transcript.json` (no tocar `start`/`end`; para borrar una palabra, quitar su objeto) y volver a
    correr solo el paso 3 con los mismos flags. No re-transcribir.
 
+## Zooms y efectos de sonido (opcional)
+
+Si el usuario pide zoom en momentos importantes o sonidos en palabras clave, escribir
+`~/.cache/video-tiktok/<nombre>/fx.json` (índices = posición de la palabra en `transcript.json`)
+y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ignora):
+
+```json
+{"zooms": [{"from": 12, "to": 14, "scale": 1.2, "focus": [0.5, 0.3]}],
+ "sfx":   [{"word": 12, "sound": "whoosh"}, {"word": 16, "sound": "pop"}, {"word": 43, "sound": "ding"}]}
+```
+
+- Zoom: entra suave sobre la frase y vuelve al terminar; `focus` (x, y en 0..1) es hacia dónde
+  apunta (cara, pizarrón…). Después del render, sacar un fotograma a mitad de cada zoom y revisar
+  que el encuadre no corte la cara; si la corta, ajustar `focus`.
+- Sonidos (sintetizados, sin archivos): `whoosh` al empezar un zoom, `pop` para ítems de una
+  lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
+- Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
+
+## Título gancho (opcional, para videos "virales")
+
+`render ... --hook "Frase corta|segunda línea" --hook-dur 3` muestra arriba, al inicio, un título
+en mayúsculas (texto negro sobre caja amarilla, con un pequeño rebote). Elegir la frase más fuerte
+del video (máx. ~6 palabras). Para un pedido de "video viral": `--hook`, `--trim-silence`,
+zooms y sonidos en `fx.json`, `--music auto` y `--enhance`.
+
+## Pausas más cortas (opcional)
+
+Whisper a veces estira palabras sobre los silencios, así que algunas pausas no se ven en la
+transcripción. Si el usuario pide pausas más cortas: `render ... --trim-silence --max-pause 0.3 --pad 0.12`
+(corta también los silencios que detecta en el audio, a -38 dB). Después volver a transcribir el
+resultado y comparar con la transcripción original para confirmar que no se comió finales de palabra;
+si pasa, subir `--pad`.
+
+## Cambiar el fondo (opcional)
+
+`python3 scripts/replace_bg.py <video> <salida.mp4>` reemplaza el fondo por azul oscuro con un leve
+degradé (segmentación de personas con `pip install "rembg[cpu]"`, ~0,3 s por cuadro). Correrlo en
+segundo plano sobre el video original y después hacer el `render` de la salida con
+`--transcript` y `--fx` de la carpeta del video original (mismos tiempos) y los mismos flags.
+
+## HD (opcional)
+
+Si el usuario pide "HD" o mejor calidad, agregar `--enhance` al render: reduce el ruido de
+compresión de WhatsApp, escala con lanczos, enfoca y realza un poco el color, y codifica con
+`-preset slow -crf 17`. La salida ya es 1080x1920; esto mejora la nitidez, no inventa detalle.
+
+## Música de fondo (opcional)
+
+`render ... --music auto` genera una base instrumental simple (Am-F-C-G, ~100 BPM);
+`--music <archivo.mp3>` usa un tema del usuario (se repite si es corto). La música se normaliza a
+`--music-volume` LUFS (default -27; la voz va a -14), entra y sale con fade y baja sola cuando hay
+voz (sidechain). Si suena fuerte o floja, mover `--music-volume` de a 3. Recordar al usuario que
+para temas con derechos conviene agregar el audio desde la app de TikTok.
+
 ## "Lo mismo que el anterior"
 
 Repetir los pasos con los mismos flags que se usaron en el video anterior de la conversación

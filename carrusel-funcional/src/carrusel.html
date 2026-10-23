@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#c9c3b6; --line:rgba(217,178,95,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;background:var(--bg)}
+  .slide::after{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none;z-index:5}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+  .brand{position:absolute;bottom:62px;left:84px;display:flex;align-items:center;gap:14px;z-index:6;
+         font-weight:600;font-size:22px;letter-spacing:6px;color:var(--grey)}
+  .brand img{height:52px}
+  .swipe{position:absolute;bottom:68px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--gold);z-index:6}
+
+  /* foto a sangre con degradé abajo */
+  .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04)}
+  .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.15) 0%,rgba(10,11,14,0) 40%,rgba(10,11,14,.5) 66%,rgba(10,11,14,.95) 86%)}
+  .text{position:absolute;left:96px;right:96px;bottom:135px;z-index:4}
+  .n{font-weight:900;font-size:84px;line-height:.85;letter-spacing:-3px;margin-bottom:20px}
+  .n span{font-size:28px;letter-spacing:0;color:var(--muted);font-weight:700;margin-left:10px}
+  .t{font-weight:800;font-size:62px;line-height:1.08;letter-spacing:-1px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+  .s{margin-top:18px;font-weight:500;font-size:34px;line-height:1.35;color:var(--grey)}
+
+  /* portada: mosaico de franjas */
+  .strips{position:absolute;left:0;right:0;top:0;height:800px;display:flex;gap:6px}
+  .strips img{flex:1;min-width:0;height:100%;object-fit:cover}
+  .strips::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,0) 55%,var(--bg) 100%)}
+  .cover-text{position:absolute;left:96px;right:96px;top:760px;text-align:center;z-index:4}
+  .pill{display:inline-block;border:2px solid var(--gold);color:var(--gold-l);border-radius:999px;
+        padding:22px 52px;font-weight:800;font-size:40px;letter-spacing:2px;margin-top:56px}
+  .grid{position:absolute;left:0;right:0;top:0;height:780px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:6px}
+  .grid img{width:100%;height:100%;object-fit:cover;min-width:0;min-height:0}
+  .grid .logo-cell{display:flex;align-items:center;justify-content:center;background:#141519}
+  .grid .logo-cell img{width:80%;height:auto;object-fit:contain}
+  .fade{position:absolute;left:0;right:0;top:0;height:780px;background:linear-gradient(180deg,rgba(10,11,14,0) 60%,var(--bg) 100%);z-index:2}
+  .kicker{font-weight:600;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:22px}
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<section class="slide">
+  <div class="grid">
+    <img src="fotos/alumna-1.jpg" style="object-position:55% 25%">
+    <img src="fotos/alumna-2.jpg" style="object-position:30% 30%">
+    <img src="fotos/alumna-3.jpg" style="object-position:55% 25%">
+    <img src="fotos/alumna-4.jpg" style="object-position:60% 30%">
+    <img src="fotos/alumna-5.jpg" style="object-position:45% 30%">
+    <img src="fotos/alumna-6.jpg" style="object-position:50% 30%">
+    <img src="fotos/alumna-7.jpg" style="object-position:55% 40%">
+    <div class="logo-cell"><img src="logo.png"></div>
+  </div>
+  <div class="fade"></div>
+  <div class="cover-text" style="top:800px">
+    <div class="kicker">Entrenamiento</div>
+    <div class="t" style="font-size:96px;letter-spacing:-2px">Funcional<br><span class="serif gold" style="letter-spacing:0">consciente</span></div>
+    <div class="s" style="margin-top:30px">No es solo moverte.<br>Es saber por qué te movés.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<div id="photos"></div>
+
+<!-- CIERRE -->
+<section class="slide" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 96px;
+  background:radial-gradient(ellipse 85% 55% at 50% 45%, #1a1b21 0%, var(--bg) 72%)">
+  <img src="logo.png" style="width:320px;margin-bottom:60px">
+  <div class="kicker">Funcional consciente</div>
+  <div class="t" style="font-size:74px;text-shadow:none">Cuerpo y mente,<br><span class="gold">en el mismo entrenamiento.</span></div>
+  <div class="s" style="margin-top:36px;font-size:40px">¿Te sumás al grupo?</div>
+  <div class="pill">ESCRIBIME "CONSCIENTE"</div>
+</section>
+
+<script>
+const P = [
+  ["alumna-1.jpg","55% 20%","Cada movimiento,","con intención.","Saber qué músculo trabaja cambia cómo lo hacés."],
+  ["alumna-2.jpg","30% 25%","Fuerza para","la vida real.","Subir, bajar, cargar. Lo que hacés todos los días."],
+  ["alumna-3.jpg","50% 20%","Escuchar el cuerpo","también es entrenar.","Hoy más, mañana menos. Siempre con registro."],
+  ["alumna-4.jpg","85% 25%","Primero entender.","Después cargar.","La técnica es lo que te deja entrenar por años."],
+  ["alumna-5.jpg","40% 25%","Postura que te llevás","puesta a casa.","Lo que aprendés acá se nota afuera."],
+  ["alumna-6.jpg","50% 25%","Entrenar también","es disfrutar.","Si no la pasás bien, no lo sostenés."],
+  ["alumna-7.jpg","55% 35%","Tu cuerpo, tu ritmo,","tu proceso.","En grupo, pero nunca en serie."],
+];
+const host=document.getElementById('photos');
+P.forEach(([f,pos,a,b,s],i)=>host.insertAdjacentHTML('beforebegin',`
+<section class="slide">
+  <img class="photo" src="fotos/${f}" style="object-position:${pos}">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">${String(i+1).padStart(2,'0')}<span>/ 07</span></div>
+    <div class="t">${a}<br><span class="gold">${b}</span></div>
+    <div class="s">${s}</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>`));
+host.remove();
+</script>
+</body>
+</html>

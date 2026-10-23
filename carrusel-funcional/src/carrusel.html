@@ -56,7 +56,7 @@
     <img src="fotos/alumna-5.jpg" style="object-position:45% 30%">
     <img src="fotos/alumna-6.jpg" style="object-position:50% 30%">
     <img src="fotos/alumna-7.jpg" style="object-position:55% 40%">
-    <div class="logo-cell"><img src="logo.png"></div>
+    <img src="fotos/alumna-8.jpg" style="object-position:60% 30%">
   </div>
   <div class="fade"></div>
   <div class="cover-text" style="top:800px">
@@ -89,6 +89,7 @@ const P = [
   ["alumna-5.jpg","40% 25%","Postura que te llevás","puesta a casa.","Lo que aprendés acá se nota afuera."],
   ["alumna-6.jpg","50% 25%","Entrenar también","es disfrutar.","Si no la pasás bien, no lo sostenés."],
   ["alumna-7.jpg","55% 35%","Tu cuerpo, tu ritmo,","tu proceso.","En grupo, pero nunca en serie."],
+  ["alumna-8.jpg","60% 25%","Mismo grupo.","Distinto plan.","Cada una con su carga y su ejercicio. Todas juntas."],
 ];
 const host=document.getElementById('photos');
 P.forEach(([f,pos,a,b,s],i)=>host.insertAdjacentHTML('beforebegin',`
@@ -96,7 +97,7 @@ P.forEach(([f,pos,a,b,s],i)=>host.insertAdjacentHTML('beforebegin',`
   <img class="photo" src="fotos/${f}" style="object-position:${pos}">
   <div class="shade"></div>
   <div class="text">
-    <div class="n gold">${String(i+1).padStart(2,'0')}<span>/ 07</span></div>
+    <div class="n gold">${String(i+1).padStart(2,'0')}<span>/ 08</span></div>
     <div class="t">${a}<br><span class="gold">${b}</span></div>
     <div class="s">${s}</div>
   </div>

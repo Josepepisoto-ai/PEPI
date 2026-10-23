@@ -1,6 +1,6 @@
 # Carrusel "Funcional consciente"
 
-9 placas 1080x1350: `slide-01.png` … `slide-09.png`.
+10 placas 1080x1350: `slide-01.png` … `slide-10.png`.
 Para editar textos: `src/carrusel.html` (las frases están en el array `P`), y regenerar con `node carrusel-funcional/src/render.js`.
 Las fotos y las placas no se suben al repo (ver `.gitignore`).
 

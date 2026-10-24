@@ -1,6 +1,6 @@
 # Carrusel "Florencia: 2 meses, 3 veces por semana"
 
-8 placas 1080x1350: `slide-01.png` … `slide-08.png`.
+9 placas 1080x1350: `slide-01.png` … `slide-09.png`.
 Para editar textos: `src/carrusel.html`, y regenerar con `node carrusel-florencia/src/render.js`.
 Las fotos y las placas no se suben al repo (ver `.gitignore`).
 

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#a7a196; --line:rgba(217,178,95,.28);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{
+    width:1080px;height:1350px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 85% 55% at 50% 45%, #1a1b21 0%, var(--bg) 72%);
+    padding:150px 100px 170px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .slide::before{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+  .brand{position:absolute;bottom:62px;left:84px;display:flex;align-items:center;gap:14px;
+         font-weight:600;font-size:22px;letter-spacing:6px;color:var(--muted)}
+  .brand img{height:52px}
+  .swipe{position:absolute;bottom:68px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--gold)}
+  .tag{position:absolute;top:72px;left:84px;font-weight:600;font-size:22px;letter-spacing:6px;color:var(--muted);text-transform:uppercase}
+
+  /* secuencia: 7 marcas arriba a la derecha */
+  .steps{position:absolute;top:78px;right:84px;display:flex;gap:10px}
+  .steps i{width:34px;height:6px;border-radius:3px;background:#2c2d33}
+  .steps i.on{background:var(--gold)}
+  .steps i.done{background:var(--gold-d)}
+
+  /* pregunta */
+  .qnum{display:flex;align-items:baseline;gap:14px;margin-bottom:54px}
+  .qnum b{font-weight:900;font-size:220px;line-height:.8;letter-spacing:-8px}
+  .qnum span{font-weight:700;font-size:44px;color:var(--muted)}
+  .q{font-weight:800;font-size:76px;line-height:1.1;letter-spacing:-1px}
+  .q em{font-style:normal}
+  .rule{width:110px;height:4px;background:var(--gold);margin:60px 0 44px}
+  .a{font-weight:500;font-size:44px;line-height:1.35;color:var(--grey);max-width:860px}
+
+  .center{align-items:center;text-align:center}
+  .pill{display:inline-block;border:2px solid var(--gold);color:var(--gold-l);border-radius:999px;
+        padding:22px 52px;font-weight:800;font-size:40px;letter-spacing:2px;margin-top:56px}
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<section class="slide center" id="s0">
+  <div class="tag" style="left:0;right:0;text-align:center">Tu entrevista inicial</div>
+  <div class="qnum" style="justify-content:center;margin-bottom:40px"><b class="gold" style="font-size:360px;letter-spacing:-12px">7</b></div>
+  <div class="q" style="font-size:80px;max-width:880px">Antes de darte<br>un solo ejercicio,<br>te hago estas <span class="gold">7 preguntas.</span></div>
+  <div class="brand"><img src="logo.png">JS</div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<div id="questions"></div>
+
+<!-- CIERRE -->
+<section class="slide center" id="s8">
+  <div class="tag">Por eso pregunto primero</div>
+  <div class="steps"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i></div>
+  <img src="logo.png" style="width:300px;margin-bottom:60px">
+  <div class="q" style="font-size:60px;max-width:none">No improviso con el cuerpo<br>ni con la mente de nadie.</div>
+  <div class="a" style="margin-top:28px;font-size:46px">Por eso pregunto primero.</div>
+  <div class="rule" style="margin:60px auto 50px"></div>
+  <div class="q serif gold" style="font-size:74px;letter-spacing:0">¿Cuál te costaría<br>más responder?</div>
+  <div class="a" style="margin-top:36px;font-size:32px;letter-spacing:4px;font-weight:600;color:var(--muted)">CONTAME EN COMENTARIOS</div>
+</section>
+
+<script>
+const Q = [
+  ["¿A qué hora te despertás y a qué hora te dormís <em class='gold'>de verdad?</em>", "Si dormís 5 horas, el plan es otro."],
+  ["¿Cuál es el <em class='gold'>día más complicado</em> de tu semana?", "El plan se diseña para ese día. No para el mejor."],
+  ["¿Quién <em class='gold'>cocina</em> en tu casa?", "Si no sos vos, el plan de comidas cambia."],
+  ["¿Qué intentaste antes y <em class='gold'>cuándo lo dejaste?</em>", "El abandono tiene fecha. Y casi siempre se repite."],
+  ["¿Qué te dijeron de tu cuerpo que <em class='gold'>todavía te acordás?</em>", "Acá empieza el trabajo que no se ve."],
+  ["¿A quién le tenés que <em class='gold'>pedir permiso</em> para tener una hora para vos?", "Muchas veces la respuesta es: a nadie. Solo a vos."],
+  ["¿Qué querés <em class='gold'>sentir?</em>", "No qué querés ver."],
+];
+const host = document.getElementById('questions');
+Q.forEach(([q, a], i) => {
+  const steps = Q.map((_, j) => `<i class="${j < i ? 'done' : j === i ? 'on' : ''}"></i>`).join('');
+  host.insertAdjacentHTML('beforebegin', `
+  <section class="slide">
+    <div class="tag">Pregunta ${i + 1} de 7</div>
+    <div class="steps">${steps}</div>
+    <div class="qnum"><b class="gold">${String(i + 1).padStart(2, '0')}</b><span>/ 07</span></div>
+    <div class="q">${q}</div>
+    ${a ? `<div class="rule"></div><div class="a">${a}</div>` : ''}
+    <div class="brand"><img src="logo.png">JS</div>
+    ${i < 6 ? '<div class="swipe">→</div>' : ''}
+  </section>`);
+});
+host.remove();
+</script>
+</body>
+</html>

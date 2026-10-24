@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#c9c3b6; --line:rgba(217,178,95,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;background:var(--bg)}
+  .slide::after{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none;z-index:5}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+  .brand{position:absolute;bottom:62px;left:84px;display:flex;align-items:center;gap:14px;z-index:6;
+         font-weight:600;font-size:22px;letter-spacing:6px;color:var(--grey)}
+  .brand img{height:52px}
+  .swipe{position:absolute;bottom:68px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--gold);z-index:6}
+
+  /* foto a sangre con degradé abajo */
+  .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04)}
+  .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.15) 0%,rgba(10,11,14,0) 40%,rgba(10,11,14,.5) 66%,rgba(10,11,14,.95) 86%)}
+  .text{position:absolute;left:96px;right:96px;bottom:135px;z-index:4}
+  .n{font-weight:900;font-size:84px;line-height:.85;letter-spacing:-3px;margin-bottom:20px}
+  .n span{font-size:28px;letter-spacing:0;color:var(--muted);font-weight:700;margin-left:10px}
+  .t{font-weight:800;font-size:62px;line-height:1.08;letter-spacing:-1px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+  .s{margin-top:18px;font-weight:500;font-size:34px;line-height:1.35;color:var(--grey)}
+
+  /* portada: mosaico de franjas */
+  .strips{position:absolute;left:0;right:0;top:0;height:800px;display:flex;gap:6px}
+  .strips img{flex:1;min-width:0;height:100%;object-fit:cover}
+  .strips::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,0) 55%,var(--bg) 100%)}
+  .cover-text{position:absolute;left:96px;right:96px;top:760px;text-align:center;z-index:4}
+  .pill{display:inline-block;border:2px solid var(--gold);color:var(--gold-l);border-radius:999px;
+        padding:22px 52px;font-weight:800;font-size:40px;letter-spacing:2px;margin-top:56px}
+  .kicker{font-weight:600;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:22px}
+  .solid{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 96px;
+         background:radial-gradient(ellipse 85% 55% at 50% 45%, #1a1b21 0%, var(--bg) 72%)}
+  .big{font-weight:900;font-size:400px;line-height:.85;letter-spacing:-16px;margin-left:-16px}
+  .unit{font-weight:700;font-size:30px;letter-spacing:12px;color:var(--gold);text-transform:uppercase;margin-top:20px}
+  .lead{font-weight:500;font-size:44px;line-height:1.35;color:var(--grey);margin-top:60px;max-width:860px}
+  .lead b{color:var(--ink);font-weight:800}
+  .pt{mix-blend-mode:screen}
+  .weeks{display:flex;gap:14px;margin-top:70px}
+  .weeks div{display:flex;flex-direction:column;gap:10px}
+  .weeks i{display:block;width:62px;height:22px;border-radius:6px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .weeks span{font-weight:600;font-size:18px;letter-spacing:2px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide">
+  <img class="photo" src="fotos/flor-2.jpg" style="object-position:45% 30%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="kicker">Entrenamiento personal</div>
+    <div class="t" style="font-size:88px">Florencia.</div>
+    <div class="t" style="font-size:64px;margin-top:10px"><span class="gold">2 meses.<br>3 veces por semana.</span></div>
+    <div class="s">Esto es lo que pasa cuando no aflojás.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<!-- 2 · 3 VECES -->
+<section class="slide solid">
+  <div class="kicker">Su frecuencia</div>
+  <div class="big gold">3</div>
+  <div class="unit">veces por semana</div>
+  <div class="lead">Ni todos los días<br>ni cuando sobra tiempo.<br><b>Las que entran en su vida real.</b></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 3 · 8 SEMANAS -->
+<section class="slide solid">
+  <div class="kicker">Sus primeros 2 meses</div>
+  <div class="big gold" style="font-size:300px">+20</div>
+  <div class="unit">entrenamientos</div>
+  <div class="weeks">
+    <div><i></i><i></i><i></i><span>S1</span></div><div><i></i><i></i><i></i><span>S2</span></div>
+    <div><i></i><i></i><i></i><span>S3</span></div><div><i></i><i></i><i></i><span>S4</span></div>
+    <div><i></i><i></i><i></i><span>S5</span></div><div><i></i><i></i><i></i><span>S6</span></div>
+    <div><i></i><i></i><i></i><span>S7</span></div><div><i></i><i></i><i></i><span>S8</span></div>
+  </div>
+  <div class="lead" style="margin-top:50px">Más de 20 veces <b>eligió venir.</b></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 4 · GANAS -->
+<section class="slide">
+  <img class="photo" src="fotos/flor-1.jpg" style="object-position:60% 35%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="t">Hay días con ganas.<br>Y días sin ganas.</div>
+    <div class="t" style="margin-top:10px"><span class="gold">Vino igual.</span></div>
+    <div class="s">Las ganas aparecen cuando ya estás entrenando.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 5 · CONSTANCIA -->
+<section class="slide solid">
+  <div class="kicker">Lo que aprendió</div>
+  <div class="t" style="font-size:80px;text-shadow:none">La constancia<br>no es <span style="text-decoration:line-through;text-decoration-color:var(--gold);text-decoration-thickness:8px;color:var(--muted)">motivación.</span></div>
+  <div style="width:110px;height:4px;background:var(--gold);margin:56px 0"></div>
+  <div class="t serif gold" style="font-size:72px;letter-spacing:0;text-shadow:none">Es una decisión<br>que se repite.</div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 6 · CAMBIO -->
+<section class="slide">
+  <img class="photo" src="fotos/flor-4.jpg" style="object-position:40% 40%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="t">Lo que cambió<br><span class="gold">no se ve solo en el espejo.</span></div>
+    <div class="s">Cambió cómo se mueve, cómo se siente y cómo encara la semana.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 7 · MENSAJE -->
+<section class="slide solid">
+  <div class="t" style="font-size:72px;text-shadow:none">No hace falta entrenar<br><span class="gold">todos los días.</span></div>
+  <div style="width:110px;height:4px;background:var(--gold);margin:60px 0"></div>
+  <div class="t" style="font-size:84px;text-shadow:none">Hace falta<br><span class="serif gold" style="letter-spacing:0">no dejar.</span></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 8 · CIERRE -->
+<section class="slide solid">
+  <img class="pt" src="logo-pt.png" style="width:420px;margin-bottom:50px">
+  <div class="t" style="font-size:70px;text-shadow:none">¿Cuándo arrancan<br><span class="gold">tus 2 meses?</span></div>
+  <div class="s" style="margin-top:30px;font-size:38px">Entrenamiento personal, a tu medida.</div>
+  <div class="pill">ESCRIBIME "EMPIEZO"</div>
+</section>
+
+</body>
+</html>

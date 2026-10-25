@@ -1,7 +1,7 @@
 const { chromium } = require('playwright');
 const U='/root/.claude/uploads/7877332c-b3d8-56d2-bff0-a9a67fff7e2d/';
 const OUT='/home/user/PEPI/carrusel-pilates-muros/';
-const Y='#F6B800';
+const Y='#F7E018';
 const logo=(c='#fff')=>`<div class="logo" style="color:${c}"><span>MUROS</span><small>GYM · FITNESS</small></div>`;
 const css=`*{margin:0;box-sizing:border-box}body{width:1080px;height:1350px;font-family:Inter;overflow:hidden;position:relative;background:#111}
 .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}

@@ -57,6 +57,13 @@ y volver a correr el paso 3; `render` lo aplica solo si existe (`--no-fx` lo ign
   lista, `ding` para la idea fuerte. No más de uno cada ~2 s.
 - Si se borran palabras de `transcript.json`, corregir los índices de `fx.json`.
 
+## Logo
+
+El logo de José (JS Personal Trainer, círculo con fondo transparente) está en
+`assets/logo-js.png`. Para sus videos agregar siempre `--logo <ruta al skill>/assets/logo-js.png`:
+va arriba a la derecha, a 200 px, donde no lo tapan los botones de TikTok/Instagram.
+Para Instagram usar `--margin-v 330` (subtítulos más abajo, pero fuera de la zona del caption).
+
 ## Título gancho (opcional, para videos "virales")
 
 `render ... --hook "Frase corta|segunda línea" --hook-dur 3` muestra arriba, al inicio, un título

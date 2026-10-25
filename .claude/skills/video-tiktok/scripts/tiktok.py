@@ -543,7 +543,7 @@ def audio_chain(mutes):
 
 
 def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), sfx_inputs=None,
-                 music_input=None, music_lufs=-27.0, enhance=False):
+                 music_input=None, music_lufs=-27.0, enhance=False, logo_input=None):
     fps = info["fps"]
     vpre = [f"fps={fps}"]
     if flip:
@@ -574,7 +574,13 @@ def build_filter(info, segs, flip, mutes, ass_name, loudnorm, zooms=(), sfx=(), 
         parts.append(f"[a{i}]atrim=start={s:.3f}:end={e:.3f},asetpts=PTS-STARTPTS,"
                      f"afade=t=in:d=0.01,afade=t=out:st={max(0, e - s - 0.01):.3f}:d=0.01[at{i}]")
     parts.append("".join(f"[vt{i}][at{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vc][ac]")
-    parts.append(f"[vc]{','.join(vpost)}[vout]")
+    if logo_input is None:
+        parts.append(f"[vc]{','.join(vpost)}[vout]")
+    else:
+        # Logo arriba a la derecha (abajo lo tapan los botones de TikTok/Instagram).
+        parts.append(f"[vc]{','.join(vpost)}[vb]")
+        parts.append(f"[{logo_input}:v]scale=200:-1,format=rgba[lg]")
+        parts.append("[vb][lg]overlay=W-w-30:24,format=yuv420p[vout]")
     if not sfx and music_input is None:
         parts.append(f"[ac]{apost}[aout]")
         return ";".join(parts)
@@ -670,8 +676,12 @@ def cmd_render(args):
         print(f"Música: {music.name} a {args.music_volume} LUFS", file=sys.stderr)
 
     loud = measure_loudness(video, segs, mutes, wd)
+    logo_input = None
+    if args.logo:
+        extra += ["-i", str(Path(args.logo).expanduser().resolve())]
+        logo_input = len([x for x in extra if x == "-i"])
     graph = build_filter(info, segs, args.flip, mutes, ass_name, loud, zooms, sfx, sfx_inputs,
-                         music_input, args.music_volume, args.enhance)
+                         music_input, args.music_volume, args.enhance, logo_input)
     out = Path(args.out).expanduser().resolve() if args.out else default_output(video)
     out.parent.mkdir(parents=True, exist_ok=True)
     run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-stats", "-i", video, *extra,
@@ -725,6 +735,7 @@ def main():
     r.add_argument("--music", help="música de fondo: ruta a un .mp3/.wav, o `auto` para una base generada")
     r.add_argument("--music-volume", type=float, default=-27.0,
                    help="volumen de la música en LUFS (la voz va a -14; antes de bajar con la voz)")
+    r.add_argument("--logo", help="PNG (idealmente transparente) que va arriba a la derecha")
     r.add_argument("--hook", help="título gancho arriba al inicio; `|` corta la línea")
     r.add_argument("--hook-dur", type=float, default=3.0, help="segundos que se ve el título gancho")
     r.add_argument("--trim-silence", action="store_true",

@@ -1,13 +1,14 @@
 const { chromium } = require('playwright');
 const U='/root/.claude/uploads/7877332c-b3d8-56d2-bff0-a9a67fff7e2d/';
 const OUT='/home/user/PEPI/carrusel-pilates-muros/';
-const Y='#F7E018';
-const logo=(c='#fff')=>`<div class="logo" style="color:${c}"><span>MUROS</span><small>GYM · FITNESS</small></div>`;
+const Y='#F9EB1E';
+const LOGO='data:image/png;base64,'+require('fs').readFileSync(__dirname+'/logo-muros.png').toString('base64');
+const logo=(bg)=>`<div class="logo"${bg?' style="background:#111;padding:18px 22px;border-radius:10px"':''}><img src="${LOGO}"></div>`;
 const css=`*{margin:0;box-sizing:border-box}body{width:1080px;height:1350px;font-family:Inter;overflow:hidden;position:relative;background:#111}
 .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .sh{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 45%,rgba(0,0,0,.88) 100%)}
 .logo{position:absolute;top:56px;left:64px;display:flex;flex-direction:column;line-height:1}
-.logo span{font-weight:800;font-size:44px;letter-spacing:6px}.logo small{font-weight:600;font-size:15px;letter-spacing:5px;margin-top:6px;opacity:.85}
+.logo{top:48px}.logo img{width:230px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45))}
 .num{position:absolute;top:62px;right:64px;color:#fff;font-weight:600;font-size:24px;letter-spacing:3px;opacity:.9}
 .txt{position:absolute;left:64px;right:64px;bottom:96px;color:#fff}
 .tag{display:inline-block;background:${Y};color:#111;font-weight:800;font-size:26px;letter-spacing:4px;padding:10px 18px;margin-bottom:28px;text-transform:uppercase}
@@ -32,7 +33,7 @@ const slides=[
  .box{margin-top:60px;background:#111;color:#fff;padding:44px 48px;border-radius:6px}
  .row{font-size:40px;font-weight:700;display:flex;gap:22px;align-items:center}.row+.row{margin-top:26px}
  .row b{color:${Y};font-size:24px;letter-spacing:3px;width:190px;font-weight:800}
- .cta{margin-top:56px;font-size:38px;font-weight:800}</style></head><body>${logo('#111')}<div class="num" style="color:#111">07/07</div>
+ .cta{margin-top:56px;font-size:38px;font-weight:800}</style></head><body>${logo(true)}<div class="num" style="color:#111">07/07</div>
  <div class="c"><div class="k">PILATES MAT · MUROS</div><h1>Tu primera<br>clase te<br>espera.</h1>
  <div class="box"><div class="row"><b>DIRECCIÓN</b>Av. Mitre 926, Campana</div><div class="row"><b>WHATSAPP</b>3489 588703</div></div>
  <div class="cta">Escribinos y reservá tu lugar →</div></div></body></html>`];

@@ -57,7 +57,12 @@ for i,(t,sub) in enumerate(tips):
         d.text((x+74,y+48+j*34),l,font=f,fill=(205,205,205))
 d.line((60,1268,W-60,1268),fill=(70,70,70),width=2)
 d.text((60,1290),"Guardalo para tu próximo día de piernas 💪".replace(" 💪",""),font=F("Inter-SemiBold",28),fill=(230,230,230))
-d.text((W-60,1290),"JS PERSONAL TRAINER",font=F("Inter-ExtraBold",26),fill=(214,170,72),anchor="ra")
+G=(214,170,72); fh=F("Inter-ExtraBold",28); hx=W-60-d.textlength("@pf_jose_pepi_soto",font=fh)
+d.text((W-60,1290),"@pf_jose_pepi_soto",font=fh,fill=G,anchor="ra")
+ix=hx-46; iy=1290  # Instagram glyph
+d.rounded_rectangle((ix,iy,ix+34,iy+34),radius=10,outline=G,width=3)
+d.ellipse((ix+9,iy+9,ix+25,iy+25),outline=G,width=3)
+d.ellipse((ix+24,iy+5,ix+29,iy+10),fill=G)
 logo=Image.open(__import__("os").path.join(__import__("os").path.dirname(__file__),"logo-js.png")).convert("RGBA")
 logo.thumbnail((190,190),Image.LANCZOS)
 img.alpha_composite(logo,(W-45-logo.width,22))

@@ -1,6 +1,6 @@
 """Reemplaza el fondo de un video por un azul oscuro usando segmentación de personas (rembg).
 
-Uso: python3 replace_bg.py entrada.mp4 salida.mp4 [fondo.png]
+Uso: python3 replace_bg.py entrada.mp4 salida.mp4 [fondo.png|-] [ganancia,gamma,luces]
 Con `fondo.png` (mismo tamaño que el video) se usa esa imagen en lugar del azul; sirve, por ejemplo,
 para sacar una sombra usando un fondo limpio armado a partir del propio video.
 La máscara se calcula cada 2 cuadros, se interpola, se limpia y se suaviza en el tiempo.
@@ -30,7 +30,9 @@ d = np.sqrt(((xx - W * 0.5) / W) ** 2 + ((yy - H * 0.3) / H) ** 2)
 t = np.clip(d / 0.75, 0, 1)[..., None]
 inner, outer = np.array([30, 58, 104], np.float32), np.array([8, 20, 44], np.float32)
 bg = inner * (1 - t) + outer * t
-if len(sys.argv) > 3:
+# Ajuste opcional de la persona (p. ej. "0.88,1.18,0.15" baja la luz de la cara sin tocar el fondo).
+tone = [float(x) for x in sys.argv[4].split(",")] if len(sys.argv) > 4 else None
+if len(sys.argv) > 3 and sys.argv[3] != "-":
     bg = np.asarray(Image.open(sys.argv[3]).convert("RGB").resize((W, H)), np.float32)
 
 session = new_session("u2net_human_seg")
@@ -66,7 +68,13 @@ def emit(frame, m):
     smooth = m if smooth is None else 0.55 * m + 0.45 * smooth      # suavizado temporal
     a = cv2.GaussianBlur(smooth, (0, 0), 1.5)[..., None]          # borde suave
     a = np.clip((a - 0.1) / 0.8, 0, 1)
-    out = frame.astype(np.float32) * a + bg * (1 - a)
+    fg = frame.astype(np.float32)
+    if tone:
+        gain, gamma, hl = tone
+        x = fg / 255
+        lum = x.mean(2, keepdims=True)
+        fg = (x ** gamma) * gain * (1 - hl * np.clip((lum - 0.55) / 0.45, 0, 1)) * 255
+    out = fg * a + bg * (1 - a)
     enc.stdin.write(out.astype(np.uint8).tobytes())
 
 

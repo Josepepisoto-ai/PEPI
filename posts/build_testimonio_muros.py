@@ -1,9 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 # Completar con el testimonio real y el nombre que la alumna autorizó
-QUOTE="[Acá va el testimonio de la alumna, con sus propias palabras]"
-AUTHOR="[Nombre de la alumna]"
-CLASS="Pilates Mat con la profe Gaby"
+QUOTE="Las mejores clases de elongación y fuerza."
+AUTHOR="Silvia, 54 años"
+CLASS="Alumna de la profe Gaby"
 OUT="testimonio-muros.png"
 
 W,H=1080,1350
@@ -27,15 +27,16 @@ img.alpha_composite(logo,(W-50-logo.width,36))
 d.rounded_rectangle((50,48,50+250,48+46),radius=23,fill=Y)
 d.text((175,71),"LO QUE DICEN",font=F("Inter-ExtraBold",24),fill=(15,15,15),anchor="mm")
 # quote
-d.text((52,880),"“",font=F("Inter-Black",190) if os.path.exists("/usr/share/fonts/opentype/inter/Inter-Black.otf") else F("Inter-ExtraBold",190),fill=Y)
-fq=F("Inter-SemiBoldItalic",44); words=QUOTE.split(); lines=[""]
+fq=F("Inter-SemiBoldItalic",60 if len(QUOTE)<70 else 44); words=QUOTE.split(); lines=[""]
 for w in words:
     t=(lines[-1]+" "+w).strip()
     if d.textlength(t,font=fq)>W-120: lines.append(w)
     else: lines[-1]=t
-y=1040-max(0,len(lines)-3)*56
+lh=fq.size+14; y=1205-len(lines)*lh  # bottom-anchored so short quotes sit low
+qf=F("Inter-Black",190) if os.path.exists("/usr/share/fonts/opentype/inter/Inter-Black.otf") else F("Inter-ExtraBold",190)
+d.text((52,y-165),"“",font=qf,fill=Y)
 for l in lines:
-    d.text((60,y),l,font=fq,fill="white"); y+=56
+    d.text((60,y),l,font=fq,fill="white"); y+=lh
 y+=18
 d.line((60,y+20,110,y+20),fill=Y,width=4)
 d.text((126,y),AUTHOR,font=F("Inter-ExtraBold",32),fill=Y)

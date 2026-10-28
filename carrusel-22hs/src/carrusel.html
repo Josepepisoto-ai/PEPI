@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#bdb6a8; --line:rgba(217,178,95,.3);
+    --cream:#f5efe3; --cream-ink:#17181c; --cream-muted:#6f685c; --cream-gold:#9a7425;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 85% 55% at 50% 42%, #1a1b21 0%, var(--bg) 72%);
+    padding:130px 96px 170px;display:flex;flex-direction:column}
+  .slide::before{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none}
+  .light{background:var(--cream);color:var(--cream-ink)}
+  .light::before{border-color:rgba(154,116,37,.35)}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .light .gold{background:none;color:var(--cream-gold)}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+
+  .brand{position:absolute;bottom:58px;left:84px;right:84px;display:flex;align-items:center;gap:16px;
+         font-weight:700;font-size:21px;letter-spacing:5px;color:var(--grey)}
+  .brand img{height:58px}
+  .brand small{font-weight:500;letter-spacing:4px;color:var(--muted)}
+  .light .brand{color:var(--cream-ink)} .light .brand small{color:var(--cream-muted)}
+  .swipe{position:absolute;bottom:72px;right:84px;font-weight:700;font-size:22px;letter-spacing:4px;color:var(--gold)}
+  .light .swipe{color:var(--cream-gold)}
+  .num{position:absolute;top:70px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--muted)}
+  .light .num{color:var(--cream-muted)}
+
+  /* reloj */
+  .clockrow{display:flex;align-items:center;gap:40px}
+  .hour{font-weight:900;font-size:230px;line-height:.82;letter-spacing:-10px}
+  .timeline{position:absolute;left:96px;right:96px;bottom:150px;height:6px;border-radius:3px;background:#26272d}
+  .timeline i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .timeline b{position:absolute;top:-9px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--gold-l);box-shadow:0 0 0 8px rgba(217,178,95,.2)}
+  .tl-labels{position:absolute;left:96px;right:96px;bottom:176px;display:flex;justify-content:space-between;
+             font-weight:600;font-size:20px;letter-spacing:3px;color:var(--muted)}
+  .phrase{font-weight:800;font-size:76px;line-height:1.1;letter-spacing:-1px;margin-top:90px}
+  .soft{font-weight:500;color:var(--grey)}
+  .light .soft{color:var(--cream-muted)}
+
+  .kicker{font-weight:700;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+  .light .kicker{color:var(--cream-gold)}
+  .rule{width:110px;height:5px;background:var(--gold);margin:56px 0}
+  .light .rule{background:var(--cream-gold)}
+
+  .item{display:flex;gap:34px;align-items:flex-start;padding:38px 0;border-bottom:2px solid rgba(154,116,37,.22)}
+  .item:last-child{border-bottom:none}
+  .item .n{flex:none;width:96px;height:96px;border-radius:50%;background:var(--cream-ink);color:var(--gold-l);
+           display:flex;align-items:center;justify-content:center;font-weight:900;font-size:48px}
+  .item h3{font-weight:800;font-size:46px;line-height:1.12;margin-bottom:10px}
+  .item h3 span{color:var(--cream-gold)}
+  .item p{font-weight:500;font-size:33px;line-height:1.35;color:var(--cream-muted)}
+
+  .pill{display:inline-block;background:linear-gradient(180deg,var(--gold-l),var(--gold));color:#141414;border-radius:999px;
+        padding:26px 60px;font-weight:900;font-size:42px;letter-spacing:2px;margin-top:50px;box-shadow:0 18px 50px rgba(217,178,95,.25)}
+  .center{align-items:center;justify-content:center;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide center">
+  <svg width="260" height="260" viewBox="0 0 100 100" style="margin-bottom:56px">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#d9b25f" stroke-width="3"/>
+    <g stroke="#9c7a35" stroke-width="2">
+      <line x1="50" y1="8" x2="50" y2="15"/><line x1="92" y1="50" x2="85" y2="50"/>
+      <line x1="50" y1="92" x2="50" y2="85"/><line x1="8" y1="50" x2="15" y2="50"/>
+    </g>
+    <line x1="50" y1="50" x2="31" y2="39" stroke="#f1d79a" stroke-width="4" stroke-linecap="round"/>
+    <line x1="50" y1="50" x2="50" y2="17" stroke="#f1d79a" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="3.5" fill="#f1d79a"/>
+  </svg>
+  <div class="phrase" style="margin-top:0;font-size:84px">A las 22 no te falta<br><span class="gold">voluntad.</span></div>
+  <div class="rule" style="margin:54px auto"></div>
+  <div class="phrase serif gold" style="margin-top:0;font-size:84px;letter-spacing:0">Te faltó el almuerzo.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<div id="clock"></div>
+
+<!-- 6 · EL CAMBIO (claro) -->
+<section class="slide light center">
+  <div class="num">06 / 09</div>
+  <div class="kicker">El problema real</div>
+  <div class="phrase" style="margin-top:0;font-size:96px">No es<br>la noche.</div>
+  <div class="rule" style="margin:60px auto"></div>
+  <div class="phrase" style="margin-top:0;font-size:60px">Es la mañana y el mediodía<br><span class="gold serif" style="font-size:68px">que nadie planificó.</span></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 7 · LO QUE ARMO (claro) -->
+<section class="slide light" style="justify-content:center">
+  <div class="num">07 / 09</div>
+  <div class="kicker" style="letter-spacing:4px;font-size:25px">Lo que armo con cada persona que acompaño</div>
+  <div class="item"><div class="n">1</div><div><h3>Un desayuno que <span>no depende de tener tiempo.</span></h3><p>Queda listo la noche anterior.</p></div></div>
+  <div class="item"><div class="n">2</div><div><h3>Un almuerzo <span>decidido el domingo.</span></h3><p>No improvisado a las 14.</p></div></div>
+  <div class="item"><div class="n">3</div><div><h3>Una merienda de verdad <span style="white-space:nowrap">a las 17.</span></h3><p>Antes de salir. No un caramelo.</p></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 8 · NO ES DIETA (claro) -->
+<section class="slide light center">
+  <div class="num">08 / 09</div>
+  <div class="phrase" style="margin-top:0;font-size:92px">No es una <span style="text-decoration:line-through;text-decoration-color:var(--cream-gold);text-decoration-thickness:9px;color:var(--cream-muted)">dieta.</span></div>
+  <div class="phrase" style="margin-top:30px;font-size:92px">Es un <span class="gold">horario.</span></div>
+  <div class="rule" style="margin:60px auto"></div>
+  <div class="phrase serif gold" style="margin-top:0;font-size:66px;letter-spacing:0">Y el horario se planifica.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 9 · CTA -->
+<section class="slide center">
+  <img src="logo-pt.png" style="width:360px;mix-blend-mode:screen;margin-bottom:46px">
+  <div class="phrase" style="margin-top:0;font-size:64px">¿A qué hora comés<br>algo <span class="gold">de verdad</span><br>por primera vez en el día?</div>
+  <div class="soft" style="font-size:34px;margin-top:40px;line-height:1.4">Contámelo y armamos juntos tu horario:<br>comidas y entrenamiento<br>que entran en tu semana.</div>
+  <div class="pill">ESCRIBIME "HORARIO"</div>
+  <div style="margin-top:34px;font-weight:700;font-size:24px;letter-spacing:6px;color:var(--muted)">JOSE E. SOTO · PERSONAL TRAINER</div>
+</section>
+
+<script>
+// Slides 2 a 5: la hora avanza como un reloj y en una línea de 7 a 22.
+const T = [
+  ["7:00", 7, 0,  "Café a las 7.<br><span class='soft'>Reunión. Otra reunión.</span>"],
+  ["16:00",16, 0, "Algo del kiosco<br>a las 16."],
+  ["20:30",20,30, "Llegás a tu casa<br><span class='soft'>sin haber comido en serio en todo el día.</span>"],
+  ["22:00",22, 0, "Abrís la heladera<br><span class='soft'>\"para picar algo\".</span><br><span class='gold'>Y la culpa se la lleva<br>la noche.</span>"],
+];
+const host = document.getElementById('clock');
+T.forEach(([label,h,m,txt],i)=>{
+  const hourA = ((h%12)+m/60)*30, minA = m*6;
+  const hand = (a,len)=>{const r=(a-90)*Math.PI/180;return `x2="${50+len*Math.cos(r)}" y2="${50+len*Math.sin(r)}"`};
+  const pct = ((h+m/60)-7)/(22-7)*100;
+  host.insertAdjacentHTML('beforebegin',`
+  <section class="slide" style="justify-content:center;padding-bottom:240px">
+    <div class="num">${String(i+2).padStart(2,'0')} / 09</div>
+    <div class="clockrow">
+      <svg width="200" height="200" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="#d9b25f" stroke-width="3"/>
+        <line x1="50" y1="50" ${hand(hourA,24)} stroke="#f1d79a" stroke-width="5" stroke-linecap="round"/>
+        <line x1="50" y1="50" ${hand(minA,36)} stroke="#f1d79a" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="#f1d79a"/>
+      </svg>
+      <div class="hour gold">${label}</div>
+    </div>
+    <div class="phrase">${txt}</div>
+    <div class="tl-labels"><span>7:00</span><span>22:00</span></div>
+    <div class="timeline"><i style="width:${pct}%"></i><b style="left:${pct}%"></b></div>
+    <div class="brand" style="bottom:58px"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+  </section>`);
+});
+host.remove();
+</script>
+</body>
+</html>

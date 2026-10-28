@@ -23,3 +23,10 @@ No es una dieta. Es un horario. Y el horario se planifica.
 👉 Si querés que armemos juntos tu horario de comidas y entrenamiento, escribime "HORARIO" por mensaje. Te respondo personalmente.
 
 #personaltrainer #entrenamientopersonal #habitos #alimentacionconsciente #organizacion #vidasaludable #josesotopersonaltrainer
+
+## Fotos
+
+Fotos de stock de Pexels (licencia Pexels: uso gratuito, comercial incluido, sin atribución obligatoria):
+- `src/fotos/cafe.jpg`: pexels.com/photo/312418
+- `src/fotos/reunion.jpg`: pexels.com/photo/3184291
+- `src/fotos/almuerzo.jpg`: pexels.com/photo/1640777

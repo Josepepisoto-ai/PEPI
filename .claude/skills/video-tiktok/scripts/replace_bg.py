@@ -1,6 +1,9 @@
 """Reemplaza el fondo de un video por un azul oscuro usando segmentación de personas (rembg).
 
-Uso: python3 replace_bg.py entrada.mp4 salida.mp4 [fondo.png|-] [ganancia,gamma,luces]
+Uso: python3 replace_bg.py entrada.mp4 salida.mp4 [fondo.png|-] [ganancia,gamma,luces] [cine]
+Con `cine` se arma un look de set profesional: luz principal de costado sobre la persona, fondo
+oscurecido y desenfocado, viñeta y color de cine (sombras frías, piel cálida).
+Probado: `fondo.png 0.74,1.30,0.30 cine`.
 Con `fondo.png` (mismo tamaño que el video) se usa esa imagen en lugar del azul; sirve, por ejemplo,
 para sacar una sombra usando un fondo limpio armado a partir del propio video.
 La máscara se calcula cada 2 cuadros, se interpola, se limpia y se suaviza en el tiempo.
@@ -32,8 +35,16 @@ inner, outer = np.array([30, 58, 104], np.float32), np.array([8, 20, 44], np.flo
 bg = inner * (1 - t) + outer * t
 # Ajuste opcional de la persona (p. ej. "0.88,1.18,0.15" baja la luz de la cara sin tocar el fondo).
 tone = [float(x) for x in sys.argv[4].split(",")] if len(sys.argv) > 4 else None
+cine = len(sys.argv) > 5 and sys.argv[5] == "cine"
 if len(sys.argv) > 3 and sys.argv[3] != "-":
     bg = np.asarray(Image.open(sys.argv[3]).convert("RGB").resize((W, H)), np.float32)
+
+if cine:
+    bg = cv2.GaussianBlur(bg, (0, 0), 6) * 0.45                     # fondo más oscuro y fuera de foco
+xx = np.linspace(0, 1, W, dtype=np.float32)[None, :, None]
+yy = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
+key_map = 1 - 0.30 * (1 - xx)                                       # luz principal de costado
+vig_map = 1 - 0.45 * np.clip(np.sqrt(((xx - 0.5) / 0.75) ** 2 + ((yy - 0.42) / 0.75) ** 2), 0, 1) ** 2
 
 session = new_session("u2net_human_seg")
 
@@ -74,7 +85,16 @@ def emit(frame, m):
         x = fg / 255
         lum = x.mean(2, keepdims=True)
         fg = (x ** gamma) * gain * (1 - hl * np.clip((lum - 0.55) / 0.45, 0, 1)) * 255
+    if cine:
+        fg = fg * key_map
     out = fg * a + bg * (1 - a)
+    if cine:
+        o = np.clip(out / 255 * vig_map, 0, 1)
+        lum = o.mean(2, keepdims=True)
+        o = o + np.array([-0.025, 0.0, 0.03], np.float32) * (1 - lum) + np.array([0.03, 0.01, -0.02], np.float32) * lum
+        o = np.clip(o, 0, 1)
+        o = o - 0.12 * (o - o ** 2) * (2 * o - 1)                   # curva en S suave
+        out = o * 255
     enc.stdin.write(out.astype(np.uint8).tobytes())
 
 

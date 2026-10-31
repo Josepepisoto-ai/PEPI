@@ -86,6 +86,14 @@ degradé (segmentación de personas con `pip install "rembg[cpu]"`, ~0,3 s por c
 segundo plano sobre el video original y después hacer el `render` de la salida con
 `--transcript` y `--fx` de la carpeta del video original (mismos tiempos) y los mismos flags.
 
+## Look de set profesional (opcional)
+
+Si el usuario dice que la cara tiene mucha luz o pide "como un set de filmación": correr
+`replace_bg.py <video> <salida> <fondo.png> 0.74,1.30,0.30 cine` (fondo limpio armado con un cuadro
+del propio video; ver "Cambiar el fondo") y después el `render` de la salida con `--transcript`/`--fx`
+del video original. Da luz de costado en la cara, fondo oscuro y desenfocado, viñeta y color de cine.
+Mostrar antes una comparación sobre un cuadro.
+
 ## HD (opcional)
 
 Si el usuario pide "HD" o mejor calidad, agregar `--enhance` al render: reduce el ruido de

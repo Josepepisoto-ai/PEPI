@@ -24,3 +24,8 @@ Uso:
 
 O pasale un video a Claude y decile "hacé lo mismo que el anterior".
 El resultado queda en `~/Downloads/<nombre>-final.mp4`.
+
+## Rutinas de gimnasio — alumnos personales
+
+En [`rutinas/`](rutinas/) hay una carpeta por alumno con su ficha, rutinas y progreso,
+más plantillas para agregar alumnos nuevos. Ver [`rutinas/README.md`](rutinas/README.md).

@@ -64,6 +64,13 @@ El logo de José (JS Personal Trainer, círculo con fondo transparente) está en
 va arriba a la derecha, a 200 px, donde no lo tapan los botones de TikTok/Instagram.
 Para Instagram usar `--margin-v 330` (subtítulos más abajo, pero fuera de la zona del caption).
 
+## Letras de impacto
+
+En `assets/fonts/` están Anton y Bebas Neue (licencia SIL OFL). Para usarlas con los subtítulos/títulos:
+`mkdir -p ~/.fonts && cp <skill>/assets/fonts/*.ttf ~/.fonts/ && fc-cache -f`. Estilo que le gustó a José
+para ganchos y slogans: Anton 150, blanco con la segunda línea en amarillo (&H00D7FF&), borde negro 10,
+sombra 7, `\frz-3` y entrada con rebote; sin la caja amarilla.
+
 ## Título gancho (opcional, para videos "virales")
 
 `render ... --hook "Frase corta|segunda línea" --hook-dur 3` muestra arriba, al inicio, un título

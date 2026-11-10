@@ -26,9 +26,9 @@ def boxed(d,cx,y,text,font,fg,bg,pad=(36,14)):
 
 def credit(d,y=1545):
     # supplier credit, shown on every clip
-    f=OSW(34); t="Remeras por @bolsalogo"; w=d.textlength(t,font=f)
-    d.rounded_rectangle((W/2-w/2-26,y,W/2+w/2+26,y+58),radius=29,fill=(0,0,0,170))
-    d.text((W/2,y+29),t,font=f,fill="white",anchor="mm")
+    f=OSW(56); t="@bolsalogo"; w=d.textlength(t,font=f)
+    d.rounded_rectangle((W/2-w/2-34,y,W/2+w/2+34,y+86),radius=43,fill=(0,0,0,180))
+    d.text((W/2,y+43),t,font=f,fill="white",anchor="mm")
 
 def overlay(name,lines,logo=True,burst=None,credit_y=1545):
     im=Image.new("RGBA",(W,H),(0,0,0,0)); d=ImageDraw.Draw(im)

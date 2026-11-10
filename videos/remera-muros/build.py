@@ -47,19 +47,20 @@ def overlay(name,lines,logo=True,burst=None,credit_y=1545):
         pts=[(cx+(r if i%2==0 else r*0.86)*math.cos(math.pi*i/20-math.pi/2),cy+(r if i%2==0 else r*0.86)*math.sin(math.pi*i/20-math.pi/2)) for i in range(40)]
         d.polygon(pts,fill=R)
         d.ellipse((cx-r*.8,cy-r*.8,cx+r*.8,cy+r*.8),outline=(255,255,255,255),width=5)
-        d.text((cx,cy-92),"PRECIO",font=OSW(36),fill="white",anchor="mm")
-        d.text((cx,cy-50),"LANZAMIENTO",font=OSW(36),fill="white",anchor="mm")
-        d.text((cx,cy+38),"$25.000",font=ANTON(100),fill="white",anchor="mm")
+        d.text((cx,cy-70),"PRECIO",font=OSW(30),fill="white",anchor="mm")
+        d.text((cx,cy-36),"LANZAMIENTO",font=OSW(30),fill="white",anchor="mm")
+        d.text((cx,cy+32),"$25.000",font=ANTON(80),fill="white",anchor="mm")
     p=os.path.join(TMP,name+".png"); im.save(p); return p
 
 # (source, start, dur, overlay); source is a video path or an image path
+# text sits on the chest (between face and shirt logo) or below the logo, never on it
 segs=[
- (V1,0.4,3.0,overlay("a",[("k","¡SÚPER PROMO",110,1110),("k","LANZAMIENTO!",110,None),("y","REMERA OFICIAL MUROS",64,None)])),
- (V1,9.0,2.6,overlay("b",[("y","EN NEGRA",120,1280)])),
- (V2,1.0,2.6,overlay("c",[("w","Y EN BLANCA",120,1280)])),
+ (V1,10.0,3.0,overlay("a",[("k","¡SÚPER PROMO",96,640),("k","LANZAMIENTO!",96,None),("y","REMERA OFICIAL MUROS",60,1330)])),
+ (V1,13.0,2.6,overlay("b",[("y","EN NEGRA",110,1320)])),
+ (V2,1.0,2.6,overlay("c",[("w","Y EN BLANCA",110,1320)])),
  (os.path.join(IMG,"2.jpg"),0,2.6,overlay("d",[("y","PARA ENTRENAR",90,1250),("k","CON LOS COLORES DE MUROS",56,None)])),
- (os.path.join(IMG,"4.jpg"),0,3.0,overlay("e",[],burst=(W/2,1290,240))),
- (V2,6.0,2.6,overlay("f",[("k","¡SOLO LAS PRIMERAS",86,1180),("k","30 REMERAS!",120,None)])),
+ (V2,11.0,3.0,overlay("e",[],burst=(850,820,175))),
+ (V2,8.0,2.6,overlay("f",[("k","¡SOLO LAS PRIMERAS",80,650),("k","30 REMERAS!",110,None)])),
  (os.path.join(root,"posts","remera-muros-venta-historia.png"),0,4.2,overlay("g",[],logo=False,credit_y=1600)),
 ]
 

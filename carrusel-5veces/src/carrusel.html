@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#bdb6a8; --line:rgba(217,178,95,.3);
+    --cream:#f5efe3; --cream-ink:#17181c; --cream-muted:#6f685c; --cream-gold:#9a7425;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 85% 55% at 50% 42%, #1a1b21 0%, var(--bg) 72%);
+    padding:130px 96px 170px;display:flex;flex-direction:column}
+  .slide::before{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none}
+  .light{background:var(--cream);color:var(--cream-ink)}
+  .light::before{border-color:rgba(154,116,37,.35)}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .light .gold{background:none;color:var(--cream-gold)}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+
+  .brand{position:absolute;bottom:58px;left:84px;right:84px;display:flex;align-items:center;gap:16px;
+         font-weight:700;font-size:21px;letter-spacing:5px;color:var(--grey)}
+  .brand img{height:58px}
+  .brand small{font-weight:500;letter-spacing:4px;color:var(--muted)}
+  .light .brand{color:var(--cream-ink)} .light .brand small{color:var(--cream-muted)}
+  .swipe{position:absolute;bottom:72px;right:84px;font-weight:700;font-size:22px;letter-spacing:4px;color:var(--gold)}
+  .light .swipe{color:var(--cream-gold)}
+  .num{position:absolute;top:70px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--muted)}
+  .light .num{color:var(--cream-muted)}
+
+  /* reloj */
+  .clockrow{display:flex;align-items:center;gap:40px}
+  .hour{font-weight:900;font-size:230px;line-height:.82;letter-spacing:-10px}
+  .timeline{position:absolute;left:96px;right:96px;bottom:150px;height:6px;border-radius:3px;background:#26272d}
+  .timeline i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .timeline b{position:absolute;top:-9px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--gold-l);box-shadow:0 0 0 8px rgba(217,178,95,.2)}
+  .tl-labels{position:absolute;left:96px;right:96px;bottom:176px;display:flex;justify-content:space-between;
+             font-weight:600;font-size:20px;letter-spacing:3px;color:var(--muted)}
+  .phrase{font-weight:800;font-size:76px;line-height:1.1;letter-spacing:-1px;margin-top:90px}
+  .soft{font-weight:500;color:var(--grey)}
+  .light .soft{color:var(--cream-muted)}
+
+  .kicker{font-weight:700;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+  .light .kicker{color:var(--cream-gold)}
+  .rule{width:110px;height:5px;background:var(--gold);margin:56px 0}
+  .light .rule{background:var(--cream-gold)}
+
+  .item{display:flex;gap:34px;align-items:flex-start;padding:24px 0;border-bottom:2px solid rgba(154,116,37,.22)}
+  .item:last-child{border-bottom:none}
+  .item .n{flex:none;width:96px;height:96px;border-radius:50%;background:var(--cream-ink);color:var(--gold-l);
+           display:flex;align-items:center;justify-content:center;font-weight:900;font-size:48px}
+  .item h3{font-weight:800;font-size:46px;line-height:1.12;margin-bottom:10px}
+  .item h3 span{color:var(--cream-gold)}
+  .item p{font-weight:500;font-size:33px;line-height:1.35;color:var(--cream-muted)}
+
+  .pill{display:inline-block;background:linear-gradient(180deg,var(--gold-l),var(--gold));color:#141414;border-radius:999px;
+        padding:26px 60px;font-weight:900;font-size:42px;letter-spacing:2px;margin-top:50px;box-shadow:0 18px 50px rgba(217,178,95,.25)}
+  .center{align-items:center;justify-content:center;text-align:center}
+  .topphoto{position:absolute;left:0;right:0;top:0;height:640px;overflow:hidden}
+  .topphoto img{width:100%;height:100%;object-fit:cover}
+  .topphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.1) 0%,rgba(10,11,14,0) 50%,#0f1014 100%)}
+  .inset{position:absolute;right:84px;top:450px;width:380px;height:254px;border-radius:16px;overflow:hidden;
+         border:3px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,.6);transform:rotate(3deg);z-index:2}
+  .inset img{width:100%;height:100%;object-fit:cover}
+  .photoslide{justify-content:flex-end !important;padding-bottom:250px !important}
+  .photoslide .clockrow,.photoslide .phrase{position:relative;z-index:1}
+  .photoslide .hour{font-size:180px}
+  .photoslide .phrase{margin-top:50px}
+  .band{height:330px;margin:-30px 0 34px;border-radius:18px;overflow:hidden}
+  .band img{width:100%;height:100%;object-fit:cover}
+  .steps{position:absolute;top:76px;left:84px;display:flex;gap:10px}
+  .steps i{width:46px;height:7px;border-radius:4px;background:#2c2d33}
+  .steps i.done{background:var(--gold-d)} .steps i.on{background:var(--gold-l)}
+  .mnum{display:flex;align-items:baseline;gap:14px}
+  .mnum b{font-weight:900;font-size:300px;line-height:.8;letter-spacing:-8px}
+  .mnum span{font-weight:700;font-size:52px;color:var(--muted)}
+  .mlabel{font-weight:700;font-size:28px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin:44px 0 22px}
+  .mtitle{font-weight:800;font-size:78px;line-height:1.1;letter-spacing:-1px}
+  .msub{font-weight:500;font-size:44px;line-height:1.35;color:var(--grey);margin-top:22px}
+  .card{margin-top:80px;background:var(--cream);color:var(--cream-ink);border-radius:22px;padding:54px 52px 48px;position:relative}
+  .card::before{content:"QUÉ HACEMOS";position:absolute;top:-22px;left:46px;background:var(--gold);color:#141414;
+                font-weight:800;font-size:24px;letter-spacing:4px;padding:8px 18px;border-radius:999px}
+  .card p{font-weight:700;font-size:48px;line-height:1.3}
+  .card p span{font-weight:500;color:var(--cream-muted)}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide center">
+  <div class="kicker">Antes de empezar, leé esto</div>
+  <div class="hour gold" style="font-size:380px;letter-spacing:-14px;line-height:.85">5</div>
+  <div class="phrase" style="margin-top:50px;font-size:64px">Si empezás algo este mes,<br>vas a querer dejar<br><span class="gold">5 veces.</span></div>
+  <div class="rule" style="margin:50px auto"></div>
+  <div class="phrase serif gold" style="margin-top:0;font-size:66px;letter-spacing:0">Te las digo antes.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<div id="moments"></div>
+
+<!-- 7 · NADIE ABANDONA -->
+<section class="slide light center">
+  <div class="num">07 / 09</div>
+  <div class="phrase" style="margin-top:0;font-size:70px">Nadie abandona<br>por falta de <span style="text-decoration:line-through;text-decoration-color:var(--cream-gold);text-decoration-thickness:8px;color:var(--cream-muted)">fuerza.</span></div>
+  <div class="rule" style="margin:56px auto"></div>
+  <div class="phrase" style="margin-top:0;font-size:56px">Se abandona porque<br><span class="gold">nadie avisó que esto<br>iba a pasar.</span></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 8 · PLAN -->
+<section class="slide light center">
+  <div class="num">08 / 09</div>
+  <div class="kicker">Por eso</div>
+  <div class="phrase" style="margin-top:0;font-size:84px">Lo planificamos<br><span class="gold serif">antes.</span></div>
+  <div class="rule" style="margin:60px auto"></div>
+  <div class="phrase" style="margin-top:0;font-size:52px">Si no tenés un plan,<br>no vas a lograr nada.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 9 · CTA -->
+<section class="slide center">
+  <img src="logo-pt.png" style="width:360px;mix-blend-mode:screen;margin-bottom:46px">
+  <div class="phrase" style="margin-top:0;font-size:68px">¿En cuál<br><span class="gold">abandonaste</span><br>la última vez?</div>
+  <div class="soft" style="font-size:34px;margin-top:40px;line-height:1.4">Contámelo en comentarios.<br>Y si querés que esta vez haya un plan:</div>
+  <div class="pill">ESCRIBIME "PLAN"</div>
+  <div style="margin-top:34px;font-weight:700;font-size:24px;letter-spacing:6px;color:var(--muted)">JOSE E. SOTO · PERSONAL TRAINER</div>
+</section>
+
+<script>
+const M = [
+  ["La semana 2.", "Se fue la novedad. Quedó el esfuerzo.", "Bajamos el volumen, <span>no la frecuencia.</span>"],
+  ["La primera semana pesada de trabajo.", "", "Plan mínimo: dos sesiones de 20 minutos. <span>No cero.</span>"],
+  ["El primer cumpleaños, asado o cena afuera.", "", "Se come y se disfruta. El lunes se sigue. <span>No se compensa.</span>"],
+  ["El día que la balanza no se mueve.", "", "La balanza es un dato, no un juicio. <span>Medimos otras cosas también.</span>"],
+  ["El día que alguien te dice <span class='gold'>\"qué exagerada\".</span>", "", "Recordar <span>para quién lo estás haciendo.</span>"],
+];
+const host=document.getElementById('moments');
+M.forEach(([t,sub,what],i)=>{
+  const steps=M.map((_,j)=>`<i class="${j<i?'done':j===i?'on':''}"></i>`).join('');
+  host.insertAdjacentHTML('beforebegin',`
+  <section class="slide" style="justify-content:center;padding-bottom:200px">
+    <div class="steps">${steps}</div>
+    <div class="num">${String(i+2).padStart(2,'0')} / 09</div>
+    <div class="mnum"><b class="gold">${i+1}</b><span>/ 5</span></div>
+    <div class="mlabel">Vas a querer dejar</div>
+    <div class="mtitle">${t}</div>
+    ${sub?`<div class="msub">${sub}</div>`:''}
+    <div class="card"><p>${what}</p></div>
+    <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+  </section>`);
+});
+host.remove();
+</script>
+</body>
+</html>

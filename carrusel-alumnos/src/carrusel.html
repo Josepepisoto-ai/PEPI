@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#c9c3b6; --line:rgba(217,178,95,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;background:var(--bg)}
+  .slide::after{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none;z-index:5}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+  .brand{position:absolute;bottom:62px;left:84px;display:flex;align-items:center;gap:14px;z-index:6;
+         font-weight:600;font-size:22px;letter-spacing:6px;color:var(--grey)}
+  .brand img{height:52px}
+  .swipe{position:absolute;bottom:68px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--gold);z-index:6}
+
+  /* foto a sangre con degradé abajo */
+  .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04)}
+  .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.15) 0%,rgba(10,11,14,0) 40%,rgba(10,11,14,.5) 66%,rgba(10,11,14,.95) 86%)}
+  .text{position:absolute;left:96px;right:96px;bottom:135px;z-index:4}
+  .n{font-weight:900;font-size:84px;line-height:.85;letter-spacing:-3px;margin-bottom:20px}
+  .n span{font-size:28px;letter-spacing:0;color:var(--muted);font-weight:700;margin-left:10px}
+  .t{font-weight:800;font-size:62px;line-height:1.08;letter-spacing:-1px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+  .s{margin-top:18px;font-weight:500;font-size:34px;line-height:1.35;color:var(--grey)}
+
+  /* portada: mosaico de franjas */
+  .strips{position:absolute;left:0;right:0;top:0;height:800px;display:flex;gap:6px}
+  .strips img{flex:1;min-width:0;height:100%;object-fit:cover}
+  .strips::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,0) 55%,var(--bg) 100%)}
+  .cover-text{position:absolute;left:96px;right:96px;top:760px;text-align:center;z-index:4}
+  .pill{display:inline-block;border:2px solid var(--gold);color:var(--gold-l);border-radius:999px;
+        padding:22px 52px;font-weight:800;font-size:40px;letter-spacing:2px;margin-top:56px}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide">
+  <div class="strips">
+    <img src="fotos/alumno-1.jpg" style="object-position:40% 30%">
+    <img src="fotos/alumno-2.jpg" style="object-position:40% 30%">
+    <img src="fotos/alumno-3.jpg" style="object-position:55% 30%">
+    <img src="fotos/alumno-4.jpg" style="object-position:55% 30%">
+    <img src="fotos/alumno-5.jpg" style="object-position:45% 30%">
+  </div>
+  <div class="cover-text">
+    <div class="t" style="font-size:92px">5 personas.<br><span class="gold">5 planes distintos.</span></div>
+    <div class="s" style="margin-top:34px">Así se entrena cuando el plan<br>se arma para vos.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <img class="photo" src="fotos/alumno-1.jpg" style="object-position:50% 20%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">01<span>/ 05</span></div>
+    <div class="t">La edad no es un límite.<br><span class="gold">Es un dato.</span></div>
+    <div class="s">Con ese dato se diseña el plan.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <img class="photo" src="fotos/alumno-2.jpg" style="object-position:40% 20%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">02<span>/ 05</span></div>
+    <div class="t">Cada repetición,<br><span class="gold">a su ritmo.</span></div>
+    <div class="s">Nadie compite con nadie. Solo con su semana pasada.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <img class="photo" src="fotos/alumno-3.jpg" style="object-position:50% 15%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">03<span>/ 05</span></div>
+    <div class="t">Técnica primero.<br><span class="gold">Carga después.</span></div>
+    <div class="s">Moverse bien es lo que te deja entrenar por años.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <img class="photo" src="fotos/alumno-4.jpg" style="object-position:50% 15%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">04<span>/ 05</span></div>
+    <div class="t">Su plan no se parece<br><span class="gold">al de nadie.</span></div>
+    <div class="s">Porque su vida tampoco.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <img class="photo" src="fotos/alumno-5.jpg" style="object-position:45% 20%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">05<span>/ 05</span></div>
+    <div class="t">Nunca es tarde para<br><span class="gold">ponerse fuerte.</span></div>
+    <div class="s">La fuerza es independencia. A cualquier edad.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 7 · CIERRE -->
+<section class="slide" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 96px;
+  background:radial-gradient(ellipse 85% 55% at 50% 45%, #1a1b21 0%, var(--bg) 72%)">
+  <img src="logo.png" style="width:330px;margin-bottom:64px">
+  <div class="t" style="font-size:80px;text-shadow:none">No entreno cuerpos.<br><span class="gold">Entreno personas.</span></div>
+  <div class="s" style="margin-top:40px;font-size:42px">¿Te sumás?</div>
+  <div class="pill">ESCRIBIME "QUIERO EMPEZAR"</div>
+</section>
+
+</body>
+</html>

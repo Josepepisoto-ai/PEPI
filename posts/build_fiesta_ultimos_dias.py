@@ -11,8 +11,8 @@ fr=lambda t: Image.open(os.path.join(here,"fiesta-frames",f"f_{t}.jpg")).convert
 
 img=Image.new("RGBA",(W,H),BG+(255,))
 # hero: dance-floor frame, cropped clear of the video's own captions, fading into the background
-HH=760 if STORY else 600
-hero=fr("2.5").crop((0,190,1080,190+HH))  # native width, no upscaling: stays sharp
+HH=660 if STORY else 600  # crop ends above the video's own captions
+hero=fr("1.8").crop((0,200,1080,200+HH))  # starts below the video's own corner logo  # native width, no upscaling: stays sharp
 hero=ImageEnhance.Brightness(hero).enhance(0.9)
 mask=Image.new("L",(W,HH),255); md=ImageDraw.Draw(mask)
 for y in range(HH):
@@ -25,7 +25,7 @@ img=Image.alpha_composite(img,top)
 T=210 if STORY else 0
 logo=Image.open(os.path.join(here,"logo-muros.png")).convert("RGBA")
 logo.thumbnail((260,150) if STORY else (210,118),Image.LANCZOS)
-img.alpha_composite(logo,(W-40-logo.width,T+(30 if STORY else 18)))  # also covers the video's own corner logo
+img.alpha_composite(logo,(W-40-logo.width,T+(30 if STORY else 18)))
 
 # urgency ribbon across the bottom of the photo
 rb=Image.new("RGBA",(W+200,130),Y+(255,)); rd=ImageDraw.Draw(rb)
@@ -37,7 +37,7 @@ img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10)),(-100,y0+10))
 img.alpha_composite(rb,(-100,y0))
 d=ImageDraw.Draw(img)
 
-y=HH+(150 if STORY else 110)
+y=HH+(290 if STORY else 110)
 d.text((W//2,y),"DESPEDIDA DE",font=OSW(40),fill=Y,anchor="mm")
 d.text((W//2,y+95),"FIN DE AÑO 2026",font=ANTON(132),fill="white",anchor="mm")
 d.text((W//2,y+215),"VIERNES 27/11  ·  21:30 HS",font=ANTON(76),fill=Y,anchor="mm")

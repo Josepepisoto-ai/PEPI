@@ -10,22 +10,27 @@ OSW=lambda sz,w=700: ImageFont.truetype(os.path.join(fd,f"oswald-latin-{w}-norma
 fr=lambda t: Image.open(os.path.join(here,"fiesta-frames",f"f_{t}.jpg")).convert("RGB")
 
 img=Image.new("RGBA",(W,H),BG+(255,))
-# hero: dance-floor frame, cropped clear of the video's own captions, fading into the background
-HH=660 if STORY else 600  # crop ends above the video's own captions
-hero=fr("1.8").crop((0,200,1080,200+HH))  # starts below the video's own corner logo  # native width, no upscaling: stays sharp
-hero=ImageEnhance.Brightness(hero).enhance(0.9)
-mask=Image.new("L",(W,HH),255); md=ImageDraw.Draw(mask)
-for y in range(HH):
-    md.line([(0,y),(W,y)],fill=int(255*min(1,(HH-y)/(HH*0.45))))
-img.paste(hero,(0,0),mask)
-top=Image.new("RGBA",(W,H),(0,0,0,0)); td=ImageDraw.Draw(top)
-for y in range(260):
-    td.line([(0,y),(W,y)],fill=(0,0,0,int(170*(1-y/260))))
-img=Image.alpha_composite(img,top)
+# background: fireworks photo, full bleed, darkened toward the bottom for the copy
+HH=900 if STORY else 600   # where the urgency ribbon sits
+src=Image.open(os.path.join(here,"fotos","fuegos-artificiales.jpg")).convert("RGB")
+sc=max(W/src.width,H/src.height); bgp=src.resize((round(src.width*sc),round(src.height*sc)),Image.LANCZOS)
+ox=(bgp.width-W)//2; oy=0 if STORY else round(bgp.height*0.08)
+img=bgp.crop((ox,oy,ox+W,oy+H)).convert("RGBA")
+ov=Image.new("RGBA",(W,H),(0,0,0,0)); od=ImageDraw.Draw(ov)
+for y in range(H):
+    a_=0
+    if y<260: a_=int(150*(1-y/260))
+    g0=HH-120
+    if y>g0: a_=max(a_,int(225*min(1,(y-g0)/260)))
+    od.line([(0,y),(W,y)],fill=BG+(a_,))
+img=Image.alpha_composite(img,ov)
 T=210 if STORY else 0
 logo=Image.open(os.path.join(here,"logo-muros.png")).convert("RGBA")
 logo.thumbnail((260,150) if STORY else (210,118),Image.LANCZOS)
-img.alpha_composite(logo,(W-40-logo.width,T+(30 if STORY else 18)))
+lx,ly=W-40-logo.width,T+(30 if STORY else 18)
+halo=Image.new("RGBA",(W,H),(0,0,0,0)); ImageDraw.Draw(halo).ellipse((lx-50,ly-40,lx+logo.width+50,ly+logo.height+40),fill=BG+(200,))
+img=Image.alpha_composite(img,halo.filter(ImageFilter.GaussianBlur(30)))  # keeps the logo readable over bright fireworks
+img.alpha_composite(logo,(lx,ly))
 
 # urgency ribbon across the bottom of the photo
 rb=Image.new("RGBA",(W+200,130),Y+(255,)); rd=ImageDraw.Draw(rb)
@@ -37,7 +42,7 @@ img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10)),(-100,y0+10))
 img.alpha_composite(rb,(-100,y0))
 d=ImageDraw.Draw(img)
 
-y=HH+(290 if STORY else 110)
+y=HH+(150 if STORY else 110)
 d.text((W//2,y),"DESPEDIDA DE",font=OSW(40),fill=Y,anchor="mm")
 d.text((W//2,y+95),"FIN DE AÑO 2026",font=ANTON(132),fill="white",anchor="mm")
 d.text((W//2,y+215),"VIERNES 27/11  ·  21:30 HS",font=ANTON(76),fill=Y,anchor="mm")

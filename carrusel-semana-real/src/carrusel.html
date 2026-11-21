@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#bdb6a8; --line:rgba(217,178,95,.3);
+    --cream:#f5efe3; --cream-ink:#17181c; --cream-muted:#6f685c; --cream-gold:#9a7425;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 85% 55% at 50% 42%, #1a1b21 0%, var(--bg) 72%);
+    padding:130px 96px 170px;display:flex;flex-direction:column}
+  .slide::before{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none}
+  .light{background:var(--cream);color:var(--cream-ink)}
+  .light::before{border-color:rgba(154,116,37,.35)}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .light .gold{background:none;color:var(--cream-gold)}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+
+  .brand{position:absolute;bottom:58px;left:84px;right:84px;display:flex;align-items:center;gap:16px;
+         font-weight:700;font-size:21px;letter-spacing:5px;color:var(--grey)}
+  .brand img{height:58px}
+  .brand small{font-weight:500;letter-spacing:4px;color:var(--muted)}
+  .light .brand{color:var(--cream-ink)} .light .brand small{color:var(--cream-muted)}
+  .swipe{position:absolute;bottom:72px;right:84px;font-weight:700;font-size:22px;letter-spacing:4px;color:var(--gold)}
+  .light .swipe{color:var(--cream-gold)}
+  .num{position:absolute;top:70px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--muted)}
+  .light .num{color:var(--cream-muted)}
+
+  /* reloj */
+  .clockrow{display:flex;align-items:center;gap:40px}
+  .hour{font-weight:900;font-size:230px;line-height:.82;letter-spacing:-10px}
+  .timeline{position:absolute;left:96px;right:96px;bottom:150px;height:6px;border-radius:3px;background:#26272d}
+  .timeline i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .timeline b{position:absolute;top:-9px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--gold-l);box-shadow:0 0 0 8px rgba(217,178,95,.2)}
+  .tl-labels{position:absolute;left:96px;right:96px;bottom:176px;display:flex;justify-content:space-between;
+             font-weight:600;font-size:20px;letter-spacing:3px;color:var(--muted)}
+  .phrase{font-weight:800;font-size:76px;line-height:1.1;letter-spacing:-1px;margin-top:90px}
+  .soft{font-weight:500;color:var(--grey)}
+  .light .soft{color:var(--cream-muted)}
+
+  .kicker{font-weight:700;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+  .light .kicker{color:var(--cream-gold)}
+  .rule{width:110px;height:5px;background:var(--gold);margin:56px 0}
+  .light .rule{background:var(--cream-gold)}
+
+  .item{display:flex;gap:34px;align-items:flex-start;padding:24px 0;border-bottom:2px solid rgba(154,116,37,.22)}
+  .item:last-child{border-bottom:none}
+  .item .n{flex:none;width:96px;height:96px;border-radius:50%;background:var(--cream-ink);color:var(--gold-l);
+           display:flex;align-items:center;justify-content:center;font-weight:900;font-size:48px}
+  .item h3{font-weight:800;font-size:46px;line-height:1.12;margin-bottom:10px}
+  .item h3 span{color:var(--cream-gold)}
+  .item p{font-weight:500;font-size:33px;line-height:1.35;color:var(--cream-muted)}
+
+  .pill{display:inline-block;background:linear-gradient(180deg,var(--gold-l),var(--gold));color:#141414;border-radius:999px;
+        padding:26px 60px;font-weight:900;font-size:42px;letter-spacing:2px;margin-top:50px;box-shadow:0 18px 50px rgba(217,178,95,.25)}
+  .center{align-items:center;justify-content:center;text-align:center}
+  .topphoto{position:absolute;left:0;right:0;top:0;height:640px;overflow:hidden}
+  .topphoto img{width:100%;height:100%;object-fit:cover}
+  .topphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.1) 0%,rgba(10,11,14,0) 50%,#0f1014 100%)}
+  .inset{position:absolute;right:84px;top:450px;width:380px;height:254px;border-radius:16px;overflow:hidden;
+         border:3px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,.6);transform:rotate(3deg);z-index:2}
+  .inset img{width:100%;height:100%;object-fit:cover}
+  .photoslide{justify-content:flex-end !important;padding-bottom:250px !important}
+  .photoslide .clockrow,.photoslide .phrase{position:relative;z-index:1}
+  .photoslide .hour{font-size:180px}
+  .photoslide .phrase{margin-top:50px}
+  .band{height:330px;margin:-30px 0 34px;border-radius:18px;overflow:hidden}
+  .band img{width:100%;height:100%;object-fit:cover}
+  .week{position:absolute;top:70px;left:84px;right:84px;display:flex;gap:12px;z-index:3}
+  .week .d{flex:1;height:70px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+           font-weight:800;font-size:28px;letter-spacing:2px;color:var(--muted);border:2px solid #2c2d33}
+  .week .d.done{border-color:var(--gold-d);color:var(--gold-d)}
+  .week .d.on{background:linear-gradient(180deg,var(--gold-l),var(--gold));color:#141414;border-color:transparent}
+  .light .week .d{border-color:#e2d9c6;color:var(--cream-muted)}
+  .light .week .d.done{border-color:#c9a75c;color:var(--cream-gold)}
+  .dayname{font-weight:900;font-size:150px;line-height:.9;letter-spacing:-5px}
+  .tagrow{display:flex;gap:16px;margin-top:30px;flex-wrap:wrap}
+  .tag{padding:12px 26px;border-radius:999px;font-weight:800;font-size:28px;letter-spacing:3px;text-transform:uppercase;border:2px solid var(--gold);color:var(--gold-l)}
+  .tag.fill{background:linear-gradient(180deg,var(--gold-l),var(--gold));color:#141414;border-color:transparent}
+  .light .tag{border-color:var(--cream-gold);color:var(--cream-gold)}
+  .dtext{font-weight:800;font-size:64px;line-height:1.12;letter-spacing:-.5px;margin-top:60px}
+  .dsub{font-weight:500;font-size:42px;line-height:1.35;margin-top:24px;color:var(--grey)}
+  .light .dsub{color:var(--cream-muted)}
+  .acc{position:absolute;left:96px;right:96px;bottom:150px}
+  .acc .lab{display:flex;justify-content:space-between;font-weight:700;font-size:22px;letter-spacing:3px;color:var(--muted);margin-bottom:12px;text-transform:uppercase}
+  .acc .lab b{color:var(--gold-l)}
+  .acc .tr{height:10px;border-radius:5px;background:#26272d;position:relative}
+  .acc .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .light .acc .tr{background:#e2d9c6} .light .acc .lab b{color:var(--cream-gold)}
+  .recap{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:56px;width:100%}
+  .recap div{border-radius:16px;background:#15161b;border:2px solid rgba(217,178,95,.3);padding:22px 6px;text-align:center}
+  .recap b{display:block;font-weight:800;font-size:28px;color:var(--gold)}
+  .recap span{display:block;font-weight:900;font-size:40px;margin-top:8px}
+  .recap small{display:block;font-weight:600;font-size:18px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide center">
+  <div class="week"><div class="d ">L</div><div class="d ">M</div><div class="d ">M</div><div class="d ">J</div><div class="d ">V</div><div class="d ">S/D</div></div>
+  <div style="display:flex;gap:40px;align-items:flex-end;justify-content:center">
+    <div><div class="hour gold" style="font-size:220px;letter-spacing:-8px">9</div><div class="kicker" style="margin:10px 0 0">horas de trabajo</div></div>
+    <div class="hour" style="font-size:120px;color:var(--muted);margin-bottom:70px">+</div>
+    <div><div class="hour gold" style="font-size:220px;letter-spacing:-8px">2</div><div class="kicker" style="margin:10px 0 0">de viaje</div></div>
+  </div>
+  <div class="phrase" style="margin-top:60px;font-size:62px">Trabajás 9 horas, viajás 2<br>y <span class="gold">llegás muerto.</span></div>
+  <div class="soft" style="font-size:42px;margin-top:30px;line-height:1.35">Así se ve una semana<br><span class="gold" style="font-weight:800">de movimiento posible.</span></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<!-- 2 · LUNES -->
+<section class="slide " style="justify-content:center;padding-top:200px;padding-bottom:260px">
+  <div class="week"><div class="d on">L</div><div class="d ">M</div><div class="d ">M</div><div class="d ">J</div><div class="d ">V</div><div class="d ">S/D</div></div>
+  <div class="dayname gold" style="font-size:150px">Lunes</div>
+  <div class="tagrow"><div class="tag ">Fuerza</div><div class="tag fill">20 min</div></div>
+  <div class="dtext">20 minutos de fuerza en casa <span class='gold'>apenas llegás,</span> antes de sentarte.</div>
+  <div class="dsub">Si te sentás, perdiste.</div>
+  <div class="acc"><div class="lab"><span>Minutos en la semana</span><b>20 min</b></div><div class="tr"><i style="width:16.7%"></i></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 3 · MARTES -->
+<section class="slide " style="justify-content:center;padding-top:200px;padding-bottom:260px">
+  <div class="week"><div class="d done">L</div><div class="d on">M</div><div class="d ">M</div><div class="d ">J</div><div class="d ">V</div><div class="d ">S/D</div></div>
+  <div class="dayname gold" style="font-size:150px">Martes</div>
+  <div class="tagrow"><div class="tag ">Caminata</div><div class="tag fill">15 min</div></div>
+  <div class="dtext">Nada de rutina.</div>
+  <div class="dsub">Bajate <b>una parada antes</b><br>y caminá 15 minutos.</div>
+  <div class="acc"><div class="lab"><span>Minutos en la semana</span><b>35 min</b></div><div class="tr"><i style="width:29.2%"></i></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 4 · MIÉRCOLES -->
+<section class="slide " style="justify-content:center;padding-top:200px;padding-bottom:260px">
+  <div class="week"><div class="d done">L</div><div class="d done">M</div><div class="d on">M</div><div class="d ">J</div><div class="d ">V</div><div class="d ">S/D</div></div>
+  <div class="dayname gold" style="font-size:150px">Miércoles</div>
+  <div class="tagrow"><div class="tag ">Fuerza</div><div class="tag fill">20 min</div></div>
+  <div class="dtext">20 minutos de fuerza.<br><span class='gold'>Mismo horario que el lunes,</span></div>
+  <div class="dsub">así no hay que decidir.</div>
+  <div class="acc"><div class="lab"><span>Minutos en la semana</span><b>55 min</b></div><div class="tr"><i style="width:45.8%"></i></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 5 · JUEVES -->
+<section class="slide light" style="justify-content:center;padding-top:200px;padding-bottom:260px">
+  <div class="week"><div class="d done">L</div><div class="d done">M</div><div class="d done">M</div><div class="d on">J</div><div class="d ">V</div><div class="d ">S/D</div></div>
+  <div class="dayname gold" style="font-size:150px">Jueves</div>
+  <div class="tagrow"><div class="tag ">Descanso</div><div class="tag fill">0 min</div></div>
+  <div class="dtext">Libre <span class='gold'>de verdad.</span></div>
+  <div class="dsub">Descansar también está en el plan.</div>
+  <div class="acc"><div class="lab"><span>Minutos en la semana</span><b>55 min</b></div><div class="tr"><i style="width:45.8%"></i></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 6 · VIERNES -->
+<section class="slide " style="justify-content:center;padding-top:200px;padding-bottom:260px">
+  <div class="week"><div class="d done">L</div><div class="d done">M</div><div class="d done">M</div><div class="d done">J</div><div class="d on">V</div><div class="d ">S/D</div></div>
+  <div class="dayname gold" style="font-size:150px">Viernes</div>
+  <div class="tagrow"><div class="tag ">Plan C</div><div class="tag fill">7 min</div></div>
+  <div class="dtext">7 minutos, plan C.</div>
+  <div class="dsub">Es viernes, nadie tiene energía, y hacerlo igual <b>vale doble.</b></div>
+  <div class="acc"><div class="lab"><span>Minutos en la semana</span><b>62 min</b></div><div class="tr"><i style="width:51.7%"></i></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 7 · SÁBADO O DOMINGO -->
+<section class="slide " style="justify-content:center;padding-top:200px;padding-bottom:260px">
+  <div class="week"><div class="d done">L</div><div class="d done">M</div><div class="d done">M</div><div class="d done">J</div><div class="d done">V</div><div class="d on">S/D</div></div>
+  <div class="dayname gold" style="font-size:104px">Sábado o domingo</div>
+  <div class="tagrow"><div class="tag ">Algo que te guste</div><div class="tag fill">40 min</div></div>
+  <div class="dtext">40 minutos de<br><span class='gold'>algo que te guste.</span></div>
+  <div class="dsub">Caminar, bici, pelota, bailar.</div>
+  <div class="acc"><div class="lab"><span>Minutos en la semana</span><b>102 min</b></div><div class="tr"><i style="width:85.0%"></i></div></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 8 · TOTAL -->
+<section class="slide center">
+  <div class="week"><div class="d done">L</div><div class="d done">M</div><div class="d done">M</div><div class="d done">J</div><div class="d done">V</div><div class="d done">S/D</div></div>
+  <div class="kicker">Total</div>
+  <div class="phrase" style="margin-top:0;font-size:74px">Menos de <span class="gold">2 horas</span><br>en toda la semana.</div>
+  <div class="recap">
+    <div><b>L</b><span>20</span><small>FUERZA</small></div>
+    <div><b>M</b><span>15</span><small>CAMINAR</small></div>
+    <div><b>M</b><span>20</span><small>FUERZA</small></div>
+    <div><b>J</b><span>0</span><small>LIBRE</small></div>
+    <div><b>V</b><span>7</span><small>PLAN C</small></div>
+    <div><b>S/D</b><span>40</span><small>LO QUE TE GUSTE</small></div>
+  </div>
+  <div class="soft" style="margin-top:34px;font-size:38px">20 + 15 + 20 + 0 + 7 + 40 = <b class="gold" style="font-weight:900">102 minutos</b></div>
+  <div class="phrase serif gold" style="margin-top:50px;font-size:64px;letter-spacing:0">Guardalo y marcá<br>qué día arrancás.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+</body>
+</html>

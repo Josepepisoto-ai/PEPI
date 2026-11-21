@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#bdb6a8; --line:rgba(217,178,95,.3);
+    --cream:#f5efe3; --cream-ink:#17181c; --cream-muted:#6f685c; --cream-gold:#9a7425;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 85% 55% at 50% 42%, #1a1b21 0%, var(--bg) 72%);
+    padding:130px 96px 170px;display:flex;flex-direction:column}
+  .slide::before{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none}
+  .light{background:var(--cream);color:var(--cream-ink)}
+  .light::before{border-color:rgba(154,116,37,.35)}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .light .gold{background:none;color:var(--cream-gold)}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+
+  .brand{position:absolute;bottom:58px;left:84px;right:84px;display:flex;align-items:center;gap:16px;
+         font-weight:700;font-size:21px;letter-spacing:5px;color:var(--grey)}
+  .brand img{height:58px}
+  .brand small{font-weight:500;letter-spacing:4px;color:var(--muted)}
+  .light .brand{color:var(--cream-ink)} .light .brand small{color:var(--cream-muted)}
+  .swipe{position:absolute;bottom:72px;right:84px;font-weight:700;font-size:22px;letter-spacing:4px;color:var(--gold)}
+  .light .swipe{color:var(--cream-gold)}
+  .num{position:absolute;top:70px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--muted)}
+  .light .num{color:var(--cream-muted)}
+
+  /* reloj */
+  .clockrow{display:flex;align-items:center;gap:40px}
+  .hour{font-weight:900;font-size:230px;line-height:.82;letter-spacing:-10px}
+  .timeline{position:absolute;left:96px;right:96px;bottom:150px;height:6px;border-radius:3px;background:#26272d}
+  .timeline i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
+  .timeline b{position:absolute;top:-9px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--gold-l);box-shadow:0 0 0 8px rgba(217,178,95,.2)}
+  .tl-labels{position:absolute;left:96px;right:96px;bottom:176px;display:flex;justify-content:space-between;
+             font-weight:600;font-size:20px;letter-spacing:3px;color:var(--muted)}
+  .phrase{font-weight:800;font-size:76px;line-height:1.1;letter-spacing:-1px;margin-top:90px}
+  .soft{font-weight:500;color:var(--grey)}
+  .light .soft{color:var(--cream-muted)}
+
+  .kicker{font-weight:700;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+  .light .kicker{color:var(--cream-gold)}
+  .rule{width:110px;height:5px;background:var(--gold);margin:56px 0}
+  .light .rule{background:var(--cream-gold)}
+
+  .item{display:flex;gap:34px;align-items:flex-start;padding:24px 0;border-bottom:2px solid rgba(154,116,37,.22)}
+  .item:last-child{border-bottom:none}
+  .item .n{flex:none;width:96px;height:96px;border-radius:50%;background:var(--cream-ink);color:var(--gold-l);
+           display:flex;align-items:center;justify-content:center;font-weight:900;font-size:48px}
+  .item h3{font-weight:800;font-size:46px;line-height:1.12;margin-bottom:10px}
+  .item h3 span{color:var(--cream-gold)}
+  .item p{font-weight:500;font-size:33px;line-height:1.35;color:var(--cream-muted)}
+
+  .pill{display:inline-block;background:linear-gradient(180deg,var(--gold-l),var(--gold));color:#141414;border-radius:999px;
+        padding:26px 60px;font-weight:900;font-size:42px;letter-spacing:2px;margin-top:50px;box-shadow:0 18px 50px rgba(217,178,95,.25)}
+  .center{align-items:center;justify-content:center;text-align:center}
+  .topphoto{position:absolute;left:0;right:0;top:0;height:640px;overflow:hidden}
+  .topphoto img{width:100%;height:100%;object-fit:cover}
+  .topphoto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.1) 0%,rgba(10,11,14,0) 50%,#0f1014 100%)}
+  .inset{position:absolute;right:84px;top:450px;width:380px;height:254px;border-radius:16px;overflow:hidden;
+         border:3px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,.6);transform:rotate(3deg);z-index:2}
+  .inset img{width:100%;height:100%;object-fit:cover}
+  .photoslide{justify-content:flex-end !important;padding-bottom:250px !important}
+  .photoslide .clockrow,.photoslide .phrase{position:relative;z-index:1}
+  .photoslide .hour{font-size:180px}
+  .photoslide .phrase{margin-top:50px}
+  .band{height:330px;margin:-30px 0 34px;border-radius:18px;overflow:hidden}
+  .band img{width:100%;height:100%;object-fit:cover}
+  .wbar{position:absolute;top:70px;left:84px;right:84px;display:flex;gap:12px;z-index:3}
+  .seg{flex:1}
+  .seg i{display:block;height:10px;border-radius:5px;background:#2c2d33}
+  .seg span{display:block;margin-top:12px;font-weight:700;font-size:19px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+  .seg.done i{background:var(--gold-d)} .seg.on i{background:var(--gold-l)} .seg.on span{color:var(--gold)}
+  .light .seg i{background:#e2d9c6} .light .seg.done i{background:#c9a75c} .light .seg.on i{background:var(--cream-gold)}
+  .light .seg span{color:var(--cream-muted)} .light .seg.on span{color:var(--cream-gold)}
+  .wk{font-weight:900;font-size:320px;line-height:.8;letter-spacing:-8px}
+  .wk small{font-size:72px;letter-spacing:0;font-weight:800;margin-right:16px;vertical-align:super}
+  .wt{font-weight:800;font-size:86px;line-height:1.08;letter-spacing:-1.5px;margin-top:70px}
+  .ws{font-weight:500;font-size:50px;line-height:1.35;margin-top:28px;color:var(--cream-muted)}
+  .black{background:#000}
+  .black::before{border-color:rgba(217,178,95,.45)}
+  .nolist{list-style:none;margin-top:50px}
+  .nolist{margin-top:70px}
+  .nolist li{font-weight:900;font-size:84px;line-height:1.25;line-height:1.25;color:var(--gold-d);text-decoration:line-through;text-decoration-color:var(--gold);text-decoration-thickness:6px}
+  .yes{display:flex;gap:36px;align-items:flex-start;margin-top:64px}
+  .yes .ck{flex:none;width:100px;height:100px;border-radius:50%;background:var(--cream-ink);color:var(--gold-l);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900}
+  .yes p{font-weight:800;font-size:66px;line-height:1.18}
+  .yes p span{font-weight:500;color:var(--cream-muted)}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide center">
+  <div class="wbar"><div class="seg "><i></i><span>Semana 1</span></div><div class="seg "><i></i><span>Semana 2</span></div><div class="seg "><i></i><span>Semana 3</span></div><div class="seg "><i></i><span>Semana 4</span></div></div>
+  <div class="hour gold" style="font-size:360px;letter-spacing:-14px;line-height:.85">4</div>
+  <div class="kicker" style="margin-top:20px">semanas</div>
+  <div class="phrase" style="margin-top:40px;font-size:76px">Lo que nadie te dice<br>de las <span class="gold">primeras<br>4 semanas.</span></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<!-- 2 · SEMANA 1 -->
+<section class="slide light" style="justify-content:center">
+  <div class="wbar"><div class="seg on"><i></i><span>Semana 1</span></div><div class="seg "><i></i><span>Semana 2</span></div><div class="seg "><i></i><span>Semana 3</span></div><div class="seg "><i></i><span>Semana 4</span></div></div>
+  <div class="wk gold"><small>Semana</small>1</div>
+  <div class="wt">Te cuesta.</div>
+  <div class="ws">No es falta de capacidad. Tu cuerpo y tu agenda se están acomodando.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 3 · SEMANA 2 -->
+<section class="slide light" style="justify-content:center">
+  <div class="wbar"><div class="seg done"><i></i><span>Semana 1</span></div><div class="seg on"><i></i><span>Semana 2</span></div><div class="seg "><i></i><span>Semana 3</span></div><div class="seg "><i></i><span>Semana 4</span></div></div>
+  <div class="wk gold"><small>Semana</small>2</div>
+  <div class="wt">Aparece la primera <span class='gold'>excusa buena.</span></div>
+  <div class="ws">Esa es la importante.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 4 · SEMANA 3 -->
+<section class="slide light" style="justify-content:center">
+  <div class="wbar"><div class="seg done"><i></i><span>Semana 1</span></div><div class="seg done"><i></i><span>Semana 2</span></div><div class="seg on"><i></i><span>Semana 3</span></div><div class="seg "><i></i><span>Semana 4</span></div></div>
+  <div class="wk gold"><small>Semana</small>3</div>
+  <div class="wt">Muchas personas empiezan a notar <span class='gold'>cosas chicas.</span></div>
+  <div class="ws">La escalera, el sueño, el humor. No todas. Y está bien.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 5 · SEMANA 4 -->
+<section class="slide light" style="justify-content:center">
+  <div class="wbar"><div class="seg done"><i></i><span>Semana 1</span></div><div class="seg done"><i></i><span>Semana 2</span></div><div class="seg done"><i></i><span>Semana 3</span></div><div class="seg on"><i></i><span>Semana 4</span></div></div>
+  <div class="wk gold"><small>Semana</small>4</div>
+  <div class="wt">Lo que cambió no siempre se ve en el espejo.</div>
+  <div class="wt" style="margin-top:40px;color:var(--cream-gold)">Se ve en que seguís.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 6 · LO QUE NO (negro y dorado, para compartir) -->
+<section class="slide black" style="justify-content:center">
+  <div class="wbar"><div class="seg done"><i></i><span>Semana 1</span></div><div class="seg done"><i></i><span>Semana 2</span></div><div class="seg done"><i></i><span>Semana 3</span></div><div class="seg done"><i></i><span>Semana 4</span></div></div>
+  <div class="phrase" style="margin-top:0;font-size:70px;line-height:1.12;color:var(--gold)">Lo que <span style="color:var(--gold-l);font-weight:900">NO</span> te puedo<br>prometer en 4 semanas:</div>
+  <ul class="nolist"><li>Un número<br>en la balanza.</li><li>Un talle.</li><li>Un abdomen.</li></ul>
+    <div class="brand"><img src="logo.png"><span class="gold">JOSE E. SOTO</span> <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 7 · LO QUE SÍ -->
+<section class="slide light" style="justify-content:center">
+  <div class="wbar"><div class="seg done"><i></i><span>Semana 1</span></div><div class="seg done"><i></i><span>Semana 2</span></div><div class="seg done"><i></i><span>Semana 3</span></div><div class="seg done"><i></i><span>Semana 4</span></div></div>
+  <div class="phrase" style="margin-top:0;font-size:110px;color:var(--cream-gold)">Lo que sí:</div>
+  <div class="yes"><div class="ck">✓</div><p>Un plan pensado <span>para tu vida real.</span></p></div>
+  <div class="yes"><div class="ck">✓</div><p>Alguien que te va a escribir <span>cuando faltes.</span></p></div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 8 · ÉXITO -->
+<section class="slide center">
+  <div class="wbar"><div class="seg done"><i></i><span>Semana 1</span></div><div class="seg done"><i></i><span>Semana 2</span></div><div class="seg done"><i></i><span>Semana 3</span></div><div class="seg done"><i></i><span>Semana 4</span></div></div>
+  <div class="kicker">El éxito</div>
+  <div class="phrase" style="margin-top:0;font-size:66px">es cumplir lo propuesto<br>y dar un <span class="gold">primer paso sólido.</span></div>
+  <div class="rule" style="margin:56px auto"></div>
+  <div class="phrase serif gold" style="margin-top:0;font-size:70px;letter-spacing:0">Nada más, nada menos.</div>
+  <div class="brand"><img src="logo.png">JOSE E. SOTO <small>· PERSONAL TRAINER</small></div>
+</section>
+
+<!-- 9 · CTA -->
+<section class="slide center">
+  <img src="logo-pt.png" style="width:340px;mix-blend-mode:screen;margin-bottom:46px">
+  <div class="phrase" style="margin-top:0;font-size:68px">¿Qué semana<br>es la que <span class="gold">más te cuesta?</span></div>
+  <div class="soft" style="font-size:34px;margin-top:40px;line-height:1.4">Contámelo en comentarios.<br>Y si querés arrancar tus primeras<br>4 semanas con un plan:</div>
+  <div class="pill">ESCRIBIME "4 SEMANAS"</div>
+  <div style="margin-top:34px;font-weight:700;font-size:24px;letter-spacing:6px;color:var(--muted)">JOSE E. SOTO · PERSONAL TRAINER</div>
+</section>
+
+</body>
+</html>

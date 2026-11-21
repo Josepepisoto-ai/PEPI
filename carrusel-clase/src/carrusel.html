@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0b0e; --gold:#d9b25f; --gold-l:#f1d79a; --gold-d:#9c7a35;
+    --ink:#f4efe4; --muted:#8f897d; --grey:#c9c3b6; --line:rgba(217,178,95,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;font-family:'Montserrat',sans-serif;color:var(--ink)}
+  .slide{width:1080px;height:1350px;position:relative;overflow:hidden;background:var(--bg)}
+  .slide::after{content:"";position:absolute;inset:36px;border:1.5px solid var(--line);pointer-events:none;z-index:5}
+  .gold{background:linear-gradient(180deg,var(--gold-l) 0%,var(--gold) 45%,var(--gold-d) 100%);
+        -webkit-background-clip:text;background-clip:text;color:transparent}
+  .serif{font-family:'Playfair Display',serif;font-style:italic;font-weight:700}
+  .brand{position:absolute;bottom:62px;left:84px;display:flex;align-items:center;gap:14px;z-index:6;
+         font-weight:600;font-size:22px;letter-spacing:6px;color:var(--grey)}
+  .brand img{height:52px}
+  .swipe{position:absolute;bottom:68px;right:84px;font-weight:600;font-size:22px;letter-spacing:4px;color:var(--gold);z-index:6}
+
+  /* foto a sangre con degradé abajo */
+  .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04)}
+  .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,.15) 0%,rgba(10,11,14,0) 40%,rgba(10,11,14,.5) 66%,rgba(10,11,14,.95) 86%)}
+  .text{position:absolute;left:96px;right:96px;bottom:135px;z-index:4}
+  .n{font-weight:900;font-size:84px;line-height:.85;letter-spacing:-3px;margin-bottom:20px}
+  .n span{font-size:28px;letter-spacing:0;color:var(--muted);font-weight:700;margin-left:10px}
+  .t{font-weight:800;font-size:62px;line-height:1.08;letter-spacing:-1px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+  .s{margin-top:18px;font-weight:500;font-size:34px;line-height:1.35;color:var(--grey)}
+
+  /* portada: mosaico de franjas */
+  .strips{position:absolute;left:0;right:0;top:0;height:800px;display:flex;gap:6px}
+  .strips img{flex:1;min-width:0;height:100%;object-fit:cover}
+  .strips::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,14,0) 55%,var(--bg) 100%)}
+  .cover-text{position:absolute;left:96px;right:96px;top:760px;text-align:center;z-index:4}
+  .pill{display:inline-block;border:2px solid var(--gold);color:var(--gold-l);border-radius:999px;
+        padding:22px 52px;font-weight:800;font-size:40px;letter-spacing:2px;margin-top:56px}
+  .grid{position:absolute;left:0;right:0;top:0;height:780px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:6px}
+  .grid img{width:100%;height:100%;object-fit:cover;min-width:0;min-height:0}
+  .grid .logo-cell{display:flex;align-items:center;justify-content:center;background:#141519}
+  .grid .logo-cell img{width:80%;height:auto;object-fit:contain}
+  .fade{position:absolute;left:0;right:0;top:0;height:780px;background:linear-gradient(180deg,rgba(10,11,14,0) 60%,var(--bg) 100%);z-index:2}
+  .kicker{font-weight:600;font-size:26px;letter-spacing:8px;color:var(--gold);text-transform:uppercase;margin-bottom:22px}
+  .mosaic{position:absolute;left:0;right:0;top:0;height:760px;display:grid;grid-template-columns:1.2fr 1fr;grid-template-rows:1fr 1fr;gap:6px}
+  .mosaic img{width:100%;height:100%;object-fit:cover;min-height:0}
+  .mosaic img:first-child{grid-row:span 2}
+  .mfade{position:absolute;left:0;right:0;top:0;height:760px;background:linear-gradient(180deg,rgba(10,11,14,0) 60%,var(--bg) 100%)}
+  .solid{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 96px;
+         background:radial-gradient(ellipse 85% 55% at 50% 45%, #1a1b21 0%, var(--bg) 72%)}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="slide">
+  <img class="photo" src="fotos/dos.jpg" style="object-position:50% 40%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="kicker">Entrenamiento funcional</div>
+    <div class="t" style="font-size:80px">Una clase.<br><span class="gold">Cada una<br>a su nivel.</span></div>
+    <div class="s">Así se ve un día de entrenamiento con nosotros.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+  <div class="swipe">DESLIZÁ →</div>
+</section>
+
+<!-- 2 · FUERZA -->
+<section class="slide">
+  <img class="photo" src="fotos/estocada.jpg" style="object-position:50% 45%">
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">01<span>/ 03</span></div>
+    <div class="t">Fuerza de verdad.<br><span class="gold">Barra, discos y técnica.</span></div>
+    <div class="s">Cargamos lo que podés mover bien. Ni un kilo más.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 3 · CORE -->
+<section class="slide">
+  <div style="position:absolute;left:0;right:0;top:0;height:900px;overflow:hidden"><img src="fotos/core.jpg" style="width:100%;height:100%;object-fit:cover;object-position:60% 88%"></div>
+  <div style="position:absolute;left:0;right:0;top:600px;height:300px;background:linear-gradient(180deg,rgba(10,11,14,0),var(--bg))"></div>
+  <div class="text">
+    <div class="n gold">02<span>/ 03</span></div>
+    <div class="t">El core no son abdominales.<br><span class="gold">Es control.</span></div>
+    <div class="s">Estabilidad para cuidar la espalda, adentro y afuera del gimnasio.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 4 · EN GRUPO -->
+<section class="slide">
+  <div style="position:absolute;inset:0;overflow:hidden"><img class="photo" src="fotos/dos.jpg" style="transform:scale(1.55);transform-origin:72% 38%"></div>
+  <div class="shade"></div>
+  <div class="text">
+    <div class="n gold">03<span>/ 03</span></div>
+    <div class="t">En grupo,<br><span class="gold">pero nunca en serie.</span></div>
+    <div class="s">Mismo horario, mismo esfuerzo. El ejercicio y la carga, a tu medida.</div>
+  </div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 5 · MOSAICO -->
+<section class="slide" style="display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding:0 96px 190px">
+  <div class="mosaic">
+    <img src="fotos/estocada.jpg" style="object-position:50% 40%">
+    <img src="fotos/core.jpg" style="object-position:70% 70%">
+    <img src="fotos/dos.jpg" style="object-position:70% 30%">
+  </div>
+  <div class="mfade"></div>
+  <div class="t" style="font-size:68px;position:relative;z-index:2">Nadie viene a competir.</div>
+  <div class="t" style="font-size:74px;position:relative;z-index:2;margin-top:6px"><span class="serif gold" style="letter-spacing:0">Todas vienen a sumar.</span></div>
+  <div class="brand"><img src="logo.png">JS</div>
+</section>
+
+<!-- 6 · CTA -->
+<section class="slide solid">
+  <img src="logo-pt.png" style="width:400px;mix-blend-mode:screen;margin-bottom:50px">
+  <div class="t" style="font-size:70px;text-shadow:none">¿Te sumás a<br><span class="gold">la próxima clase?</span></div>
+  <div class="s" style="margin-top:30px;font-size:38px">Entrenamiento funcional,<br>en grupo y a tu medida.</div>
+  <div class="pill">ESCRIBIME "CLASE"</div>
+</section>
+
+</body>
+</html>

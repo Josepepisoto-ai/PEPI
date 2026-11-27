@@ -30,7 +30,7 @@ def row(y,name,time):
     d.rectangle((90,y,W-90,y+110),fill=K)
     d.text((130,y+55),name,font=ANTON(70),fill="white",anchor="lm")
     d.text((W-130,y+55),time,font=ANTON(70),fill=Y,anchor="rm")
-row(915+S,"FUNCIONAL","18 A 19 HS")
+row(915+S,"FUNCIONAL","18 HS Y 19 HS")
 row(1045+S,"ZUMBA","20 HS")
 
 d.rectangle((0,1190+S,W,H),fill=K)
